@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Colors</title>
+    <link rel="stylesheet" href="assets/css/style.min.css">
+    <link rel="stylesheet" href="assets/vendor/c-p/color-picker.css">
+    <style>
+        @media only screen and (min-width: 650px) {
+            .card-single {
+                min-width: 600px;
+            }
+        }
+        .center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .center-content.is-dark .title,
+        .center-content.is-dark .subtitle {
+            color: #fff;
+        }
+        .mono {
+            font-family: monospace;
+        }
+        /* colorjoe fix */
+
+    </style>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <div class="search-form">
+                <div class="field">
+                    <div class="control">
+                        <input class="js-searchInput input is-large" type="text" placeholder="Color name or #hex">
+                    </div>
+                </div>
+            </div>
+
+            <div id="results"></div>
+        </div>
+    </section>
+    <script src="assets/vendor/c-p/color-picker.js"></script>
+    <script src="app/js/dist/bundle.js"></script>
+
+    <!-- Handlebars -->
+    <script id="hb-card" type="text/x-handlebars-template">
+        <hr>
+        <div class="columns is-centered">
+            <div class="column is-narrow">
+                <div class="card card-single">
+                    <div class="card-image">
+                        <figure class="image is-16by9" style="background-color: {{ value }};">
+                            <div class="center-content has-text-centered{{#if specs.isDark }} is-dark {{/if}}">
+                                {{#if different}}
+                                <h3 class="title is-4">{{ title }}</h3>
+                                {{else}}
+                                <h3 class="title is-4">{{ title }}</h3>
+                                <p class="subtitle is-6">{{ value }}</p>
+                                {{/if}}
+                            </div>
+                        </figure>
+                    </div>
+                    <div class="card-content">
+                        {{#if different}}
+                        <div class="media">
+                            <div class="media-left">
+                                <figure class="image is-64x64" style="background-color: {{ matched }}"></figure>
+                            </div>
+                            <div class="media-content">
+                                <p class="small">MOST SIMILAR</p>
+                                <p class="title is-5">{{ name }}</p>
+                                <p class="js-matched subtitle is-6">{{ matched }}</p>
+                            </div>
+                        </div>
+                        {{/if}}
+                
+                        <div class="content">
+                            <table class="mono">
+                                <tbody>
+                                    {{#each spaces}}
+                                    <tr>
+                                        <td><strong>{{ title }}</strong></td>
+                                        <td>
+                                            {{#each value }}
+                                                {{ this }}{{#unless @last}}, {{/unless}}
+                                            {{/each}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script id="hb-each-card" type="text/x-handlebars-template">
+        <hr>
+        <div class="columns is-multiline">
+            {{#each this}}
+            <div class="column is-one-third is-one-quarter-desktop">
+                <div class="card">
+                    <div class="card-image">
+                        <figure class="image is-16by9" style="background-color: {{ value }};">
+                            <div class="center-content has-text-centered
+                            {{#if specs.isDark }} is-dark {{/if}}
+                            ">
+                                {{#if different}}
+                                <h3 class="title is-4">{{ title }}</h3>
+                                {{else}}
+                                <h3 class="title is-4">{{ title }}</h3>
+                                <p class="js-matched subtitle is-6">{{ value }}</p>
+                                {{/if}}
+                            </div>
+                        </figure>
+                    </div>
+                    <div class="card-content">
+                        {{#if different}}
+                        <div class="media">
+                            <div class="media-left">
+                                <figure class="image is-64x64" style="background-color: {{ matched }}"></figure>
+                            </div>
+                            <div class="media-content">
+                                <p class="small">MOST SIMILAR</p>
+                                <p class="title is-5">{{ name }}</p>
+                                <p class="js-matched subtitle is-6">{{ matched }}</p>
+                            </div>
+                        </div>
+                        {{/if}}
+                
+                        <div class="content">
+                            <table class="mono">
+                                <tbody>
+                                    {{#each spaces}}
+                                    <tr>
+                                        <td><strong>{{ title }}</strong></td>
+                                        <td>
+                                            {{#each value }}
+                                            {{ this }}{{#unless @last}}, {{/unless}}
+                                            {{/each}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </script>
+
+</body>
+
+</html>
