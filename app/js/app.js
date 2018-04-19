@@ -24,16 +24,19 @@ var colorNamesJson = [];
             R.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
+                setInputField();
             });
 
             G.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
+                setInputField();
             });
 
             B.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
                 this.parentElement.children[2].innerHTML = this.value;
+                setInputField();
             });
 
             R.addEventListener('change', function () {
@@ -47,6 +50,23 @@ var colorNamesJson = [];
             B.addEventListener('change', function () {
                 setColor();
             });
+        };
+
+        var setInputField = function() {
+            let r_hex = parseInt(R.value, 10).toString(16),
+                g_hex = parseInt(G.value, 10).toString(16),
+                b_hex = parseInt(B.value, 10).toString(16),
+                hex = "#" + pad(r_hex) + pad(g_hex) + pad(b_hex),
+                col = tinycolor(hex);
+
+            input.style.backgroundColor = hex;
+            input.value = hex;
+
+            if(col.isDark()){
+                input.style.color = '#fff';
+            } else {
+                input.style.color = '#000';
+            }
         };
 
         var update = function() {
