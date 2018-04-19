@@ -24,19 +24,28 @@ var colorNamesJson = [];
             R.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
-                delayedUpdate();
             });
 
             G.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
-                delayedUpdate();
             });
 
             B.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
                 this.parentElement.children[2].innerHTML = this.value;
-                delayedUpdate();
+            });
+
+            R.addEventListener('change', function () {
+                setColor();
+            });
+
+            G.addEventListener('change', function () {
+                setColor();
+            });
+
+            B.addEventListener('change', function () {
+                setColor();
             });
         };
 
