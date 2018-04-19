@@ -7,14 +7,120 @@ var Handlebars = require('handlebars');
 // All color names in json var
 var hexArr = {}
 var colorNamesJson = [];
-var picker = new CP(document.querySelector('.js-searchInput'));
 
 (function () {
+
+    var rgbSlider  = (function () {
+
+        var R = document.querySelector('.js-rgbR'),
+            G = document.querySelector('.js-rgbG'),
+            B = document.querySelector('.js-rgbB'),
+            rgbSliders = document.querySelector('.rgbSliders'),
+            input = document.querySelector('.js-searchInput');
+
+        var events = function () {
+            R.addEventListener('change', function () {
+                this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
+                this.parentElement.children[2].innerHTML = this.value;
+                setColor();
+            });
+
+            G.addEventListener('change', function () {
+                this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
+                this.parentElement.children[2].innerHTML = this.value;
+                setColor();
+            });
+
+            B.addEventListener('change', function () {
+                this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
+                this.parentElement.children[2].innerHTML = this.value;
+                setColor();
+            });
+        };
+
+        var setSliders = function(r, g, b) {
+            R.value = r;
+            R.parentElement.children[2].innerHTML = r;
+            R.style.backgroundColor = `rgb(${r}, 0, 0)`;
+
+            G.value = g;
+            G.parentElement.children[2].innerHTML = g;
+            G.style.backgroundColor = `rgb(0, ${g}, 0)`;
+            
+            B.value = b;
+            B.parentElement.children[2].innerHTML = b;
+            B.style.backgroundColor = `rgb(0, 0, ${b})`;
+
+            let hex = getHex(r,g,b);
+            setColor(hex);
+        };
+
+        var getHex = function (r,g,b) {
+            let r_hex = parseInt(r, 10).toString(16),
+                g_hex = parseInt(g, 10).toString(16),
+                b_hex = parseInt(b, 10).toString(16);
+            
+            return "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
+        };
+
+        var setColor = function(hex) {
+
+            if(typeof hexc === 'undefined') {
+
+                var r_hex = parseInt(R.value, 10).toString(16),
+                    g_hex = parseInt(G.value, 10).toString(16),
+                    b_hex = parseInt(B.value, 10).toString(16),
+
+                hex = "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
+            }
+
+            let col = tinycolor(hex);
+
+            if(col.isDark()){
+                input.style.color = '#fff';
+            } else {
+                input.style.color = '#000';
+            }
+
+            input.style.backgroundColor = hex;
+            input.value = hex;
+            searchEngine.hex(hex);
+        };
+
+        // outils
+        var pad = function(n){
+            return (n.length<2) ? "0"+n : n;
+        };
+
+        var hideSliders = function() {
+            rgbSliders.classList.add("hidden");
+        };
+        var showSliders = function() {
+            rgbSliders.classList.remove("hidden");
+        };
+
+        return {
+            init: function () {
+              events();
+              /*setSliders(
+                Math.floor(Math.random() * 255), 
+                Math.floor(Math.random() * 255), 
+                Math.floor(Math.random() * 255), 
+              );*/
+            },
+            hide: function() {
+                hideSliders();
+            },
+            show: function() {
+                showSliders();
+            }
+        }
+    })();
 
     // Color names
     var colorNames = (function () {
 
-        var colornamesFile = '/color-names/assets/vendor/color-name-list/colornames.json';
+        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
         var loadJSON = function (callback) {
             console.log('Load items from file');  
@@ -83,7 +189,8 @@ var picker = new CP(document.querySelector('.js-searchInput'));
             this.matched = matched;
             this.different = false;
             this.specs = {
-                isDark: col.isDark()
+                isDark: col.isDark(),
+                brightness: col.getBrightness()
             }
         };
 
@@ -116,18 +223,16 @@ var picker = new CP(document.querySelector('.js-searchInput'));
         // };
 
         var events = function () {
-
-            picker.on("stop", function(color) {
-                searchByHex('#' + color);
-            });
-            
+           
             document.querySelector(options.searchInput).addEventListener('keypress', function (e) {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
                 if (keyCode == '13') {
-                    picker.exit();
                     search();
                 }
+            });
+            document.querySelector(options.searchInput).addEventListener('click', function (e) {
+                rgbSlider.show();
             });
         };
 
@@ -150,9 +255,21 @@ var picker = new CP(document.querySelector('.js-searchInput'));
             if (query[0] == '#') {
                 let hex = query;
                 searchByHex(hex);
+                document.querySelector('.js-searchInput').style.backgroundColor = hex;
+                let col = tinycolor(hex);
+
+                if(col.isDark()){
+                    document.querySelector('.js-searchInput').style.color = '#fff';
+                } else {
+                    document.querySelector('.js-searchInput').style.color = '#000';
+                }
             } else {
                 searchByString(query);
+                document.querySelector('.js-searchInput').style.backgroundColor = '';
+                document.querySelector('.js-searchInput').style.color = '#000';
+
             }
+            rgbSlider.hide();
         };
 
         var searchByHex = function(hex) {
@@ -201,9 +318,11 @@ var picker = new CP(document.querySelector('.js-searchInput'));
                 //console.log(allResults[i]);
             }
             
-            let cards = colors;
-
-            UIcontroller.showCards(cards);
+            if(colors.length > 0) {
+                UIcontroller.showCards(colors);
+            } else {
+                UIcontroller.showNoResults();
+            }
         }
 
         return {
@@ -213,12 +332,16 @@ var picker = new CP(document.querySelector('.js-searchInput'));
             cardEvents: function () {
                 cardEvents();
             },
+            hex: function (hex) {
+                searchByHex(hex);
+            },
         }
 
     })();
 
     document.addEventListener("DOMContentLoaded", function(event) {
         searchEngine.init();
+        rgbSlider.init();
     });
 
     var UIcontroller = (function() {
@@ -226,7 +349,8 @@ var picker = new CP(document.querySelector('.js-searchInput'));
         var elm = {
             container: 'results',
             card: 'hb-card',
-            cardEach: 'hb-each-card'
+            cardEach: 'hb-each-card',
+            noResults: 'hb-no-results',
         };
 
         return {
@@ -235,6 +359,13 @@ var picker = new CP(document.querySelector('.js-searchInput'));
                 var templateScript = Handlebars.compile(tpl);
 
                 document.getElementById(elm.container).innerHTML = templateScript(context);
+                searchEngine.cardEvents();
+            },
+            showNoResults: function() {
+                var tpl = document.getElementById(elm.noResults).innerHTML;
+                var templateScript = Handlebars.compile(tpl);
+
+                document.getElementById(elm.container).innerHTML = templateScript();
                 searchEngine.cardEvents();
             },
             showCards: function(context) {

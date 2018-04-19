@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Colors</title>
     <link rel="stylesheet" href="assets/css/style.min.css">
-    <link rel="stylesheet" href="assets/vendor/c-p/color-picker.css">
     <style>
         @media only screen and (min-width: 650px) {
             .card-single {
@@ -36,8 +35,130 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
-        /* colorjoe fix */
+        /* rangeslider css */
+        label.range-slider__label {
+            font-weight: bold;
+            border-radius: 5px;
+            background-color: #000;
+            width: 2rem;
+            height: 2rem;
+            display: inline-block;
+            text-align: center;
+            line-height: 2rem;
+            color: #fff;
+            font-family: monospace;
+        }
 
+        label.range-slider__label--r {
+            background-color: red;
+        }
+        label.range-slider__label--g {
+            background-color: green;
+        }
+        label.range-slider__label--b {
+            background-color: blue;
+        }
+
+        .range-slider {
+            margin: 1.6rem 0 0 0%;
+          }
+          
+          .range-slider {
+            width: 100%;
+          }
+          
+          .range-slider__range {
+            -webkit-appearance: none;
+            width: calc(100% - (108px));
+            height: 10px;
+            border-radius: 5px;
+            background: #d7dcdf;
+            outline: none;
+            padding: 0;
+            margin: 0;
+          }
+          .range-slider__range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+                    appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2c3e50;
+            cursor: pointer;
+            transition: background .15s ease-in-out;
+          }
+          .range-slider__range::-webkit-slider-thumb:hover {
+            background: #1abc9c;
+          }
+          .range-slider__range:active::-webkit-slider-thumb {
+            background: #1abc9c;
+          }
+          .range-slider__range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border: 0;
+            border-radius: 50%;
+            background: #2c3e50;
+            cursor: pointer;
+            transition: background .15s ease-in-out;
+          }
+          .range-slider__range::-moz-range-thumb:hover {
+            background: #1abc9c;
+          }
+          .range-slider__range:active::-moz-range-thumb {
+            background: #1abc9c;
+          }
+          .range-slider__range:focus::-webkit-slider-thumb {
+            box-shadow: 0 0 0 3px #fff, 0 0 0 6px #1abc9c;
+          }
+          
+          .range-slider__value {
+            display: inline-block;
+            position: relative;
+            width: 60px;
+            color: #fff;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 3px;
+            background: #2c3e50;
+            padding: 5px 10px;
+            margin-left: 8px;
+          }
+          .range-slider__value:after {
+            position: absolute;
+            top: 8px;
+            left: -7px;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-right: 7px solid #2c3e50;
+            border-bottom: 7px solid transparent;
+            content: '';
+          }
+          
+          ::-moz-range-track {
+            background: #d7dcdf;
+            border: 0;
+          }
+          
+          input::-moz-focus-inner,
+          input::-moz-focus-outer {
+            border: 0;
+          }
+
+          .rgbSliders {
+            transition: all .4s;
+            -webkit-transition: all .4s; /* Safari */
+            visibility: visible;
+            opacity: 1;
+            overflow: hidden;
+          }
+
+          .hidden {
+            visibility: hidden;
+            opacity: 0;
+            height:0;
+          }
     </style>
 </head>
 
@@ -47,18 +168,50 @@
             <div class="search-form">
                 <div class="field">
                     <div class="control">
-                        <input class="js-searchInput input is-large" type="text" placeholder="Color name or #hex">
+                        <input class="js-searchInput input is-large has-text-centered" type="text" placeholder="Color name or #hex">
                     </div>
                 </div>
+                <div class="rgbSliders hidden">
+                    <div class="field">
+                        <div class="control range-slider">
+                            <label class="range-slider__label range-slider__label--r" for="r">R</label>
+                            <input class="js-rgbR range-slider__range" type="range" min="0" max="255" id="r" step="1" value="0">
+                            <span class="range-slider__value">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="control range-slider">
+                            <label class="range-slider__label range-slider__label--g" for="g">G</label>
+                            <input class="js-rgbG range-slider__range" type="range" min="0" max="255" id="g" step="1" value="0">
+                            <span class="range-slider__value">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="control range-slider">
+                            <label class="range-slider__label range-slider__label--b" for="b">B</label>
+                            <input class="js-rgbB range-slider__range" type="range" min="0" max="255" id="b" step="1" value="0">
+                            <span class="range-slider__value">0</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="results"></div>
         </div>
     </section>
-    <script src="assets/vendor/c-p/color-picker.js"></script>
     <script src="app/js/dist/bundle.js"></script>
 
     <!-- Handlebars -->
+    <script id="hb-no-results" type="text/x-handlebars-template">
+        <hr>
+        <div class="notification is-warning">
+        <!-- <button class="delete"></button> -->
+            <p class="has-text-centered">Sorry, no results were found.</p>
+        </div>
+    </script>
     <script id="hb-card" type="text/x-handlebars-template">
         <hr>
         <div class="columns is-centered">
@@ -100,6 +253,19 @@
                                             {{#each value }}
                                                 {{ this }}{{#unless @last}}, {{/unless}}
                                             {{/each}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                            <p class="is-6 is-uppercase ">Other</p>
+                            <table class="mono">
+                                <tbody>
+                                    {{#each specs}}
+                                    <tr>
+                                        <td><strong>{{ @key }}</strong></td>
+                                        <td>
+                                            {{ @this }}
                                         </td>
                                     </tr>
                                     {{/each}}
