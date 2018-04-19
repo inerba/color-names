@@ -76,7 +76,7 @@ var picker = new CP(document.querySelector('.js-searchInput'));
         };
 
         var Color = function(name, value, matched) {
-            let col = tinycolor(this.value);
+            let col = tinycolor(value);
             
             this.name = name;
             this.value = value;
