@@ -17,7 +17,7 @@ var picker = new CP(document.querySelector('.js-searchInput'));
     // Color names
     var colorNames = function () {
 
-        var colornamesFile = '../../assets/vendor/color-name-list/colornames.json';
+        var colornamesFile = '../../../assets/vendor/color-name-list/colornames.json';
 
         var loadJSON = function loadJSON(callback) {
             console.log('Load items from file');
