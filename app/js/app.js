@@ -96,7 +96,7 @@ var colorNamesJson = [];
             B.style.backgroundColor = `rgb(0, 0, ${b})`;
 
             let hex = getHex(r,g,b);
-            setColor(hex);
+            setInputField(hex);
         };
 
         var getHex = function (r,g,b) {
@@ -151,6 +151,10 @@ var colorNamesJson = [];
                 Math.floor(Math.random() * 255), 
                 Math.floor(Math.random() * 255), 
               );*/
+            },
+            set: function (hex) {
+                let rgb = tinycolor(hex).toRgb();
+                setSliders(rgb.r,rgb.g,rgb.b);
             },
             hide: function() {
                 hideSliders();
@@ -307,6 +311,9 @@ var colorNamesJson = [];
                 } else {
                     document.querySelector('.js-searchInput').style.color = '#000';
                 }
+
+                rgbSlider.set(hex);
+
             } else {
                 searchByString(query);
                 document.querySelector('.js-searchInput').style.backgroundColor = '';
