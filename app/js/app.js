@@ -16,26 +16,41 @@ var colorNamesJson = [];
             G = document.querySelector('.js-rgbG'),
             B = document.querySelector('.js-rgbB'),
             rgbSliders = document.querySelector('.rgbSliders'),
-            input = document.querySelector('.js-searchInput');
+            input = document.querySelector('.js-searchInput'),
+            updatePending;
 
         var events = function () {
+            // overlap https://stackoverflow.com/questions/202060/how-do-i-set-up-a-timer-to-prevent-overlapping-ajax-calls
             R.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
-                setColor();
+                delayedUpdate();
             });
 
             G.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
-                setColor();
+                delayedUpdate();
             });
 
             B.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
                 this.parentElement.children[2].innerHTML = this.value;
-                setColor();
+                delayedUpdate();
             });
+        };
+
+        var update = function() {
+            var updatePending = false;
+            setColor();
+        };
+
+        var delayedUpdate = function() {
+            if (updatePending) {
+                clearTimeout(updatePending);
+            }
+        
+            updatePending = setTimeout(update, 250);
         };
 
         var setSliders = function(r, g, b) {
