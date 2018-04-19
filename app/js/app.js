@@ -108,12 +108,12 @@ var picker = new CP(document.querySelector('.js-searchInput'));
             return spaces;
         };
 
-        Color.prototype.specs = function() {
-            let col = tinycolor(this.value);
-            return {
-                isDark: col.isDark()
-            };
-        };
+        // Color.prototype.specs = function() {
+        //     let col = tinycolor(this.value);
+        //     return {
+        //         isDark: col.isDark()
+        //     };
+        // };
 
         var events = function () {
 

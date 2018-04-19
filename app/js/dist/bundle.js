@@ -76,7 +76,7 @@ var picker = new CP(document.querySelector('.js-searchInput'));
         };
 
         var Color = function Color(name, value, matched) {
-            var col = tinycolor(this.value);
+            var col = tinycolor(value);
 
             this.name = name;
             this.value = value;
@@ -101,12 +101,12 @@ var picker = new CP(document.querySelector('.js-searchInput'));
             return spaces;
         };
 
-        Color.prototype.specs = function () {
-            var col = tinycolor(this.value);
-            return {
-                isDark: col.isDark()
-            };
-        };
+        // Color.prototype.specs = function() {
+        //     let col = tinycolor(this.value);
+        //     return {
+        //         isDark: col.isDark()
+        //     };
+        // };
 
         var events = function events() {
 
