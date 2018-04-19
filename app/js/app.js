@@ -19,19 +19,19 @@ var colorNamesJson = [];
             input = document.querySelector('.js-searchInput');
 
         var events = function () {
-            R.addEventListener('change', function () {
+            R.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
                 setColor();
             });
 
-            G.addEventListener('change', function () {
+            G.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
                 this.parentElement.children[2].innerHTML = this.value;
                 setColor();
             });
 
-            B.addEventListener('change', function () {
+            B.addEventListener('input', function () {
                 this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
                 this.parentElement.children[2].innerHTML = this.value;
                 setColor();
