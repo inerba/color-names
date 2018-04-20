@@ -47,10 +47,6 @@ gulp.task('bundle', function () {
 
 gulp.task('copy', function () {
     gulp.src("node_modules/color-name-list/dist/*").pipe(gulp.dest('assets/vendor/color-name-list/'));
-    gulp.src("node_modules/c-p/color-picker.css").pipe(gulp.dest('assets/vendor/c-p/'));
-    gulp.src("node_modules/c-p/color-picker.js").pipe(gulp.dest('assets/vendor/c-p/'));
-    // gulp.src("node_modules/nearest-color/nearestColor.js").pipe(gulp.dest('assets/vendor/nearest-color/'));
-    // gulp.src("node_modules/handlebars/dist/").pipe(gulp.dest('assets/vendor/handlebars/'));
 });
 
 /**
