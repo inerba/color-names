@@ -58,6 +58,8 @@ var colorNamesJson = [];
             } else {
                 input.style.color = '#000';
             }
+
+            document.querySelector('.main-title').style.color = hex;
         };
 
         var setSliders = function(r, g, b) {
