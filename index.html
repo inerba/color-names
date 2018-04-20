@@ -206,6 +206,14 @@
         .section {
             padding: .8rem .8rem;
         }
+        .js-matched {
+            cursor: pointer;
+            border-bottom: 1px dashed; 
+        }
+        .no-mb,
+        .title:not(:last-child).no-mb {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 
@@ -272,8 +280,8 @@
                                 {{#if different}}
                                 <h3 class="title is-4 is-uppercase">{{ title }}</h3>
                                 {{else}}
-                                <h3 class="title is-4">{{ title }}</h3>
-                                <p class="subtitle is-6 is-uppercase">{{ value }}</p>
+                                <h3 class="title is-4 no-mb">{{ title }}</h3>
+                                <span class="subtitle is-6 is-uppercase">{{ value }}</span>
                                 {{/if}}
                             </div>
                         </figure>
@@ -286,8 +294,8 @@
                             </div>
                             <div class="media-content">
                                 <p class="small">MOST SIMILAR</p>
-                                <p class="title is-5">{{ name }}</p>
-                                <p class="js-matched subtitle is-6 is-uppercase">{{ matched }}</p>
+                                <p class="title is-5 no-mb">{{ name }}</p>
+                                <span class="js-matched subtitle is-6 is-uppercase">{{ matched }}</span>
                             </div>
                         </div>
                         <div class="column"></div>
@@ -369,12 +377,13 @@
                                 {{#if different}}
                                 <h3 class="title is-4">{{ title }}</h3>
                                 {{else}}
-                                <h3 class="title is-4">{{ title }}</h3>
-                                <p class="js-matched subtitle is-6">{{ value }}</p>
+                                <h3 class="title is-4 no-mb">{{ title }}</h3>
+                                <span class="js-matched subtitle is-6 is-uppercase">{{ value }}</span>
                                 {{/if}}
                             </div>
                         </figure>
                     </div>
+                    <!--
                     <div class="card-content">
                         {{#if different}}
                         <div class="media">
@@ -384,11 +393,11 @@
                             <div class="media-content">
                                 <p class="small">MOST SIMILAR</p>
                                 <p class="title is-5">{{ name }}</p>
-                                <p class="js-matched subtitle is-6">{{ matched }}</p>
+                                <p class="js-matched subtitle is-6 is-uppercase">{{ matched }}</p>
                             </div>
                         </div>
                         {{/if}}
-                
+                        
                         <div class="content">
                             <table class="mono">
                                 <tbody>
@@ -406,6 +415,7 @@
                             </table>
                         </div>
                     </div>
+                -->
                 </div>
             </div>
             {{/each}}
