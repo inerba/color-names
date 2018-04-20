@@ -3,6 +3,8 @@ var gutil       = require('gulp-util');
 var source      = require('vinyl-source-stream');
 var babelify    = require('babelify');
 var watchify    = require('watchify');
+var uglify      = require('gulp-uglify');
+var rename      = require('gulp-rename');
 var exorcist    = require('exorcist');
 var browserify  = require('browserify');
 var browserSync = require('browser-sync').create();
@@ -37,7 +39,13 @@ function bundle() {
         .pipe(gulp.dest('./app/js/dist'))
         .pipe(browserSync.stream({once: true}));
 }
+gulp.task('minify', ['bundle'], function () {
 
+    gulp.src(['app/js/dist/bundle.js'])
+        .pipe(uglify())
+        .pipe(rename({ suffix: '.min' }))
+        .pipe(gulp.dest("./app/js/dist"));
+});
 /**
  * Gulp task alias
  */
