@@ -38,7 +38,7 @@ var colorNamesJson = [];
 
         var setSlider = function(slider) {
 
-            let rgbCss;
+            /*let rgbCss;
 
             if(slider.id == 'r') {
                 rgbCss = `rgb(${slider.value}, 0, 0)`;
@@ -48,7 +48,7 @@ var colorNamesJson = [];
                 rgbCss = `rgb(0, 0, ${slider.value})`;
             }
 
-            slider.style.backgroundColor = rgbCss;
+            slider.style.backgroundColor = rgbCss;*/
             slider.parentElement.children[2].innerHTML = slider.value;
         }
 

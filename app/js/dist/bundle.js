@@ -44,17 +44,15 @@ var colorNamesJson = [];
 
         var setSlider = function setSlider(slider) {
 
-            var rgbCss = void 0;
-
-            if (slider.id == 'r') {
-                rgbCss = 'rgb(' + slider.value + ', 0, 0)';
-            } else if (slider.id == 'g') {
-                rgbCss = 'rgb(0, ' + slider.value + ', 0)';
+            /*let rgbCss;
+              if(slider.id == 'r') {
+                rgbCss = `rgb(${slider.value}, 0, 0)`;
+            } else if(slider.id == 'g') {
+                rgbCss = `rgb(0, ${slider.value}, 0)`;
             } else {
-                rgbCss = 'rgb(0, 0, ' + slider.value + ')';
+                rgbCss = `rgb(0, 0, ${slider.value})`;
             }
-
-            slider.style.backgroundColor = rgbCss;
+              slider.style.backgroundColor = rgbCss;*/
             slider.parentElement.children[2].innerHTML = slider.value;
         };
 
