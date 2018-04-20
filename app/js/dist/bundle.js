@@ -73,15 +73,15 @@ var colorNamesJson = [];
         var setSliders = function setSliders(r, g, b) {
             R.value = r;
             R.parentElement.children[2].innerHTML = r;
-            R.style.backgroundColor = 'rgb(' + r + ', 0, 0)';
+            //R.style.backgroundColor = `rgb(${r}, 0, 0)`;
 
             G.value = g;
             G.parentElement.children[2].innerHTML = g;
-            G.style.backgroundColor = 'rgb(0, ' + g + ', 0)';
+            //G.style.backgroundColor = `rgb(0, ${g}, 0)`;
 
             B.value = b;
             B.parentElement.children[2].innerHTML = b;
-            B.style.backgroundColor = 'rgb(0, 0, ' + b + ')';
+            //B.style.backgroundColor = `rgb(0, 0, ${b})`;
 
             setInputField();
         };
