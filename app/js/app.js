@@ -2,7 +2,8 @@ var convert = require('color-convert');
 var Fuse = require("fuse.js");
 var nearestColor = require('nearest-color');
 var tinycolor = require("tinycolor2"); 
-var Handlebars = require('handlebars');    
+var Handlebars = require('handlebars');
+const tippy = require('tippy.js')
 
 // All color names in json var
 var hexArr = {}
@@ -37,19 +38,12 @@ var colorNamesJson = [];
         };
 
         var setSlider = function(slider) {
-
-            /*let rgbCss;
-
-            if(slider.id == 'r') {
-                rgbCss = `rgb(${slider.value}, 0, 0)`;
-            } else if(slider.id == 'g') {
-                rgbCss = `rgb(0, ${slider.value}, 0)`;
-            } else {
-                rgbCss = `rgb(0, 0, ${slider.value})`;
-            }
-
-            slider.style.backgroundColor = rgbCss;*/
-            slider.parentElement.children[2].innerHTML = slider.value;
+        
+           R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;           
+           G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;           
+           B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`;  
+          
+           slider.parentElement.children[2].innerHTML = slider.value;
         }
 
         var setInputField = function() {
@@ -68,16 +62,17 @@ var colorNamesJson = [];
 
         var setSliders = function(r, g, b) {
             R.value = r;
-            R.parentElement.children[2].innerHTML = r;
-            //R.style.backgroundColor = `rgb(${r}, 0, 0)`;
-
             G.value = g;
-            G.parentElement.children[2].innerHTML = g;
-            //G.style.backgroundColor = `rgb(0, ${g}, 0)`;
-            
             B.value = b;
+
+            R.parentElement.children[2].innerHTML = r;
+            R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;
+
+            G.parentElement.children[2].innerHTML = g;
+            G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;
+            
             B.parentElement.children[2].innerHTML = b;
-            //B.style.backgroundColor = `rgb(0, 0, ${b})`;
+            B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`; 
 
             setInputField();
         };
@@ -197,7 +192,12 @@ var colorNamesJson = [];
             this.different = false;
             this.specs = {
                 isDark: col.isDark(),
-                brightness: col.getBrightness()
+                brightness: col.getBrightness(),
+                triad: col.triad(),
+                tetrad: col.tetrad(),
+                monochromatic: col.monochromatic(),
+                analogous: col.analogous(),
+                splitcomplement: col.splitcomplement(),
             }
         };
 
@@ -247,6 +247,7 @@ var colorNamesJson = [];
             document.querySelector('.delete.overinput').addEventListener('click',function(){
                 document.querySelector(options.searchInput).value = '';
             });
+
         };
 
         var cardEvents = function () {
@@ -256,6 +257,20 @@ var colorNamesJson = [];
                     searchByHex(this.innerHTML);
                     rgbSlider.set(this.innerHTML);
                 });
+            }
+
+            // Tooltips
+            let colBox = document.querySelectorAll('.js-col-hover');
+            for (let i = 0; i < colBox.length; i++) {
+
+                tippy(colBox[i], { 
+                    dynamicTitle: true,
+                    arrow: true,
+                    interactive: true,
+                    arrowType: 'sharp'
+                });
+                colBox[i].title = tinycolor(colBox[i].style.backgroundColor).toHexString();
+
             }
         };
 

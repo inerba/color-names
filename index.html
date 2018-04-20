@@ -289,19 +289,43 @@
                                     {{/each}}
                                 </tbody>
                             </table>
-                            <p class="is-6 is-uppercase ">Other</p>
-                            <table class="mono">
-                                <tbody>
-                                    {{#each specs}}
-                                    <tr>
-                                        <td><strong>{{ @key }}</strong></td>
-                                        <td>
-                                            {{ @this }}
-                                        </td>
-                                    </tr>
-                                    {{/each}}
-                                </tbody>
-                            </table>
+                            
+                            <p class="is-6 is-uppercase ">triad</p>
+                            <div class="columns is-centered is-mobile is-variable is-1">
+                                {{#each specs.triad }}
+                                <div class="column">
+                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                </div>
+                                {{/each}}
+                            </div>
+
+                            <p class="is-6 is-uppercase ">tetrad</p>
+                            <div class="columns is-centered is-mobile is-variable is-1">
+                                {{#each specs.tetrad }}
+                                <div class="column">
+                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                </div>
+                                {{/each}}
+                            </div>
+                            
+                            <p class="is-6 is-uppercase ">analogous</p>
+                            <div class="columns is-centered is-mobile is-variable is-1">
+                                {{#each specs.analogous }}
+                                <div class="column">
+                                    <div class="js-col-hover image is-1by1" style="background-color: {{ @this }}"></div>
+                                </div>
+                                {{/each}}
+                            </div>
+                            
+                            <p class="is-6 is-uppercase ">splitcomplement</p>
+                            <div class="columns is-centered is-mobile is-variable is-1">
+                                {{#each specs.splitcomplement }}
+                                <div class="column">
+                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                </div>
+                                {{/each}}
+                            </div>
+
                         </div>
                     </div>
                 </div>
