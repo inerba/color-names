@@ -16,47 +16,44 @@ var colorNamesJson = [];
             G = document.querySelector('.js-rgbG'),
             B = document.querySelector('.js-rgbB'),
             rgbSliders = document.querySelector('.rgbSliders'),
-            input = document.querySelector('.js-searchInput'),
-            updatePending;
+            input = document.querySelector('.js-searchInput');
 
         var events = function () {
-            // overlap https://stackoverflow.com/questions/202060/how-do-i-set-up-a-timer-to-prevent-overlapping-ajax-calls
-            R.addEventListener('input', function () {
-                this.style.backgroundColor = `rgb(${this.value}, 0, 0)`;
-                this.parentElement.children[2].innerHTML = this.value;
-                setInputField();
-            });
+            let sliders = rgbSliders.getElementsByTagName('input');
+            
+            for (let i = 0; i < sliders.length; i++) {
+                sliders[i].addEventListener('change', search);
+                sliders[i].addEventListener('input', () => {
+                    setSlider(sliders[i]);
+                    setInputField();
+                });
+            }
 
-            G.addEventListener('input', function () {
-                this.style.backgroundColor = `rgb(0, ${this.value}, 0)`;
-                this.parentElement.children[2].innerHTML = this.value;
-                setInputField();
-            });
-
-            B.addEventListener('input', function () {
-                this.style.backgroundColor = `rgb(0, 0, ${this.value})`;
-                this.parentElement.children[2].innerHTML = this.value;
-                setInputField();
-            });
-
-            R.addEventListener('change', function () {
-                setColor();
-            });
-
-            G.addEventListener('change', function () {
-                setColor();
-            });
-
-            B.addEventListener('change', function () {
-                setColor();
-            });
         };
 
+        var search = function() {
+            let hex = getHex();
+            searchEngine.hex(hex);
+        };
+
+        var setSlider = function(slider) {
+
+            let rgbCss;
+
+            if(slider.id == 'r') {
+                rgbCss = `rgb(${slider.value}, 0, 0)`;
+            } else if(slider.id == 'g') {
+                rgbCss = `rgb(0, ${slider.value}, 0)`;
+            } else {
+                rgbCss = `rgb(0, 0, ${slider.value})`;
+            }
+
+            slider.style.backgroundColor = rgbCss;
+            slider.parentElement.children[2].innerHTML = slider.value;
+        }
+
         var setInputField = function() {
-            let r_hex = parseInt(R.value, 10).toString(16),
-                g_hex = parseInt(G.value, 10).toString(16),
-                b_hex = parseInt(B.value, 10).toString(16),
-                hex = "#" + pad(r_hex) + pad(g_hex) + pad(b_hex),
+            let hex = getHex(),
                 col = tinycolor(hex);
 
             input.style.backgroundColor = hex;
@@ -67,19 +64,6 @@ var colorNamesJson = [];
             } else {
                 input.style.color = '#000';
             }
-        };
-
-        var update = function() {
-            var updatePending = false;
-            setColor();
-        };
-
-        var delayedUpdate = function() {
-            if (updatePending) {
-                clearTimeout(updatePending);
-            }
-        
-            updatePending = setTimeout(update, 250);
         };
 
         var setSliders = function(r, g, b) {
@@ -95,43 +79,18 @@ var colorNamesJson = [];
             B.parentElement.children[2].innerHTML = b;
             B.style.backgroundColor = `rgb(0, 0, ${b})`;
 
-            let hex = getHex(r,g,b);
-            setInputField(hex);
+            setInputField();
         };
 
-        var getHex = function (r,g,b) {
-            let r_hex = parseInt(r, 10).toString(16),
-                g_hex = parseInt(g, 10).toString(16),
-                b_hex = parseInt(b, 10).toString(16);
+        // outils
+        var getHex = function () {
+            let r_hex = parseInt(R.value, 10).toString(16),
+                g_hex = parseInt(G.value, 10).toString(16),
+                b_hex = parseInt(B.value, 10).toString(16);
             
             return "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
         };
 
-        var setColor = function(hex) {
-
-            if(typeof hexc === 'undefined') {
-
-                var r_hex = parseInt(R.value, 10).toString(16),
-                    g_hex = parseInt(G.value, 10).toString(16),
-                    b_hex = parseInt(B.value, 10).toString(16),
-
-                hex = "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
-            }
-
-            let col = tinycolor(hex);
-
-            if(col.isDark()){
-                input.style.color = '#fff';
-            } else {
-                input.style.color = '#000';
-            }
-
-            input.style.backgroundColor = hex;
-            input.value = hex;
-            searchEngine.hex(hex);
-        };
-
-        // outils
         var pad = function(n){
             return (n.length<2) ? "0"+n : n;
         };
@@ -202,8 +161,7 @@ var colorNamesJson = [];
                         }                      
                         
                         localStorage.setItem('colorNames', response);
-                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));
-                        console.log('store items in local storage');                   
+                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
 
                         colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
                         hexArr = JSON.parse(localStorage.getItem('hexArr'));
@@ -219,10 +177,11 @@ var colorNamesJson = [];
 
     })();
 
+    // Init and store color database
     colorNames.init();
 
     // Search engine
-    var searchEngine = (function () {
+    var searchEngine = (function (rgbSlider) {
         var options = {
             searchButton: '.js-search',
             searchInput: '.js-searchInput',
@@ -272,15 +231,21 @@ var colorNamesJson = [];
 
         var events = function () {
            
-            document.querySelector(options.searchInput).addEventListener('keypress', function (e) {
+            document.querySelector(options.searchInput).addEventListener('keypress', (e) => {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
                 if (keyCode == '13') {
                     search();
                 }
             });
+
             document.querySelector(options.searchInput).addEventListener('click', function (e) {
                 rgbSlider.show();
+            });
+
+            // Clean input field
+            document.querySelector('.delete.overinput').addEventListener('click',function(){
+                document.querySelector(options.searchInput).value = '';
             });
         };
 
@@ -289,6 +254,7 @@ var colorNamesJson = [];
             for (var i = 0; i < jsMatched.length; i++) {
                 jsMatched[i].addEventListener('click', function () {
                     searchByHex(this.innerHTML);
+                    rgbSlider.set(this.innerHTML);
                 });
             }
         };
@@ -329,7 +295,8 @@ var colorNamesJson = [];
             var match = nearest(hex);
 
             if(!isHexColor(hex)){
-                //console.log('Colore non valido');
+                UIcontroller.showError({message:hex +' is not a valid hex color'});
+                document.querySelector(options.searchInput).value = '';                        
             } else {
                 let newColor = new Color(match.name, hex, match.value);
                 if(match.distance === 0){
@@ -372,7 +339,7 @@ var colorNamesJson = [];
             if(colors.length > 0) {
                 UIcontroller.showCards(colors);
             } else {
-                UIcontroller.showNoResults();
+                UIcontroller.showError({message:'Sorry, no results were found.'});
             }
         }
 
@@ -388,7 +355,7 @@ var colorNamesJson = [];
             },
         }
 
-    })();
+    })(rgbSlider);
 
     document.addEventListener("DOMContentLoaded", function(event) {
         searchEngine.init();
@@ -412,11 +379,11 @@ var colorNamesJson = [];
                 document.getElementById(elm.container).innerHTML = templateScript(context);
                 searchEngine.cardEvents();
             },
-            showNoResults: function() {
+            showError: function(context) {
                 var tpl = document.getElementById(elm.noResults).innerHTML;
                 var templateScript = Handlebars.compile(tpl);
 
-                document.getElementById(elm.container).innerHTML = templateScript();
+                document.getElementById(elm.container).innerHTML = templateScript(context);
                 searchEngine.cardEvents();
             },
             showCards: function(context) {
@@ -430,5 +397,3 @@ var colorNamesJson = [];
     })();
     
 })();
-
-console.log('app start');

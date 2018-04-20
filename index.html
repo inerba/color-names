@@ -12,30 +12,37 @@
                 min-width: 600px;
             }
         }
+    
         .center-content {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%,-50%);
+            transform: translate(-50%, -50%);
         }
+    
         .center-content.is-dark .title,
         .center-content.is-dark .subtitle {
             color: #fff;
         }
+    
         .mono {
             font-family: monospace;
         }
-        .color-picker-h, .color-picker-sv {
+    
+        .color-picker-h,
+        .color-picker-sv {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
             -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
+    
         /* rangeslider css */
+    
         label.range-slider__label {
             font-weight: bold;
             border-radius: 5px;
@@ -48,26 +55,28 @@
             color: #fff;
             font-family: monospace;
         }
-
+    
         label.range-slider__label--r {
             background-color: red;
         }
+    
         label.range-slider__label--g {
             background-color: green;
         }
+    
         label.range-slider__label--b {
             background-color: blue;
         }
-
+    
         .range-slider {
             margin: 1.6rem 0 0 0%;
-          }
-          
-          .range-slider {
+        }
+    
+        .range-slider {
             width: 100%;
-          }
-          
-          .range-slider__range {
+        }
+    
+        .range-slider__range {
             -webkit-appearance: none;
             width: calc(100% - (110px));
             height: 10px;
@@ -76,24 +85,28 @@
             outline: none;
             padding: 0;
             margin: 0;
-          }
-          .range-slider__range::-webkit-slider-thumb {
+        }
+    
+        .range-slider__range::-webkit-slider-thumb {
             -webkit-appearance: none;
-                    appearance: none;
+            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
             background: #2c3e50;
             cursor: pointer;
             transition: background .15s ease-in-out;
-          }
-          .range-slider__range::-webkit-slider-thumb:hover {
+        }
+    
+        .range-slider__range::-webkit-slider-thumb:hover {
             background: #1abc9c;
-          }
-          .range-slider__range:active::-webkit-slider-thumb {
+        }
+    
+        .range-slider__range:active::-webkit-slider-thumb {
             background: #1abc9c;
-          }
-          .range-slider__range::-moz-range-thumb {
+        }
+    
+        .range-slider__range::-moz-range-thumb {
             width: 20px;
             height: 20px;
             border: 0;
@@ -101,18 +114,21 @@
             background: #2c3e50;
             cursor: pointer;
             transition: background .15s ease-in-out;
-          }
-          .range-slider__range::-moz-range-thumb:hover {
+        }
+    
+        .range-slider__range::-moz-range-thumb:hover {
             background: #1abc9c;
-          }
-          .range-slider__range:active::-moz-range-thumb {
+        }
+    
+        .range-slider__range:active::-moz-range-thumb {
             background: #1abc9c;
-          }
-          .range-slider__range:focus::-webkit-slider-thumb {
+        }
+    
+        .range-slider__range:focus::-webkit-slider-thumb {
             box-shadow: 0 0 0 3px #fff, 0 0 0 6px #1abc9c;
-          }
-          
-          .range-slider__value {
+        }
+    
+        .range-slider__value {
             display: inline-block;
             position: relative;
             width: 60px;
@@ -123,8 +139,9 @@
             background: #2c3e50;
             padding: 5px 10px;
             margin-left: 8px;
-          }
-          .range-slider__value:after {
+        }
+    
+        .range-slider__value:after {
             position: absolute;
             top: 8px;
             left: -7px;
@@ -134,31 +151,39 @@
             border-right: 7px solid #2c3e50;
             border-bottom: 7px solid transparent;
             content: '';
-          }
-          
-          ::-moz-range-track {
+        }
+    
+        ::-moz-range-track {
             background: #d7dcdf;
             border: 0;
-          }
-          
-          input::-moz-focus-inner,
-          input::-moz-focus-outer {
+        }
+    
+        input::-moz-focus-inner,
+        input::-moz-focus-outer {
             border: 0;
-          }
-
-          .rgbSliders {
+        }
+    
+        .rgbSliders {
             transition: all .4s;
-            -webkit-transition: all .4s; /* Safari */
+            -webkit-transition: all .4s;
+            /* Safari */
             visibility: visible;
             opacity: 1;
             overflow: hidden;
-          }
-
-          .hidden {
+        }
+    
+        .hidden {
             visibility: hidden;
             opacity: 0;
-            height:0;
-          }
+            height: 0;
+        }
+    
+        .delete.overinput {
+            right: 1rem;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
     </style>
 </head>
 
@@ -169,6 +194,7 @@
                 <div class="field">
                     <div class="control">
                         <input class="js-searchInput input is-large has-text-centered" type="text" placeholder="Color name or #hex">
+                        <button class="delete overinput"></button>
                     </div>
                 </div>
                 <div class="rgbSliders hidden">
@@ -209,7 +235,7 @@
         <hr>
         <div class="notification is-warning">
         <!-- <button class="delete"></button> -->
-            <p class="has-text-centered">Sorry, no results were found.</p>
+            <p class="has-text-centered">{{ message }}</p>
         </div>
     </script>
     <script id="hb-card" type="text/x-handlebars-template">
