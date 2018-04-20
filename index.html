@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Colors</title>
     <link rel="stylesheet" href="assets/css/style.min.css">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono" rel="stylesheet">
     <style>
+        body, button, input, select, textarea {
+            font-family: 'IBM Plex Mono', monospace;
+        }
         @media only screen and (min-width: 650px) {
             .card-single {
                 min-width: 600px;
@@ -41,6 +45,11 @@
             -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
             -webkit-tap-highlight-color: transparent;
             touch-action: none;
+        }
+        /* tooltips */
+        .tippy-popper {
+            font-family: monospace;
+            text-transform: uppercase;
         }
     
         /* rangeslider css */
@@ -136,12 +145,12 @@
         .range-slider__value {
             display: inline-block;
             position: relative;
-            width: 60px;
+            width: 50px;
             color: #fff;
             line-height: 20px;
             text-align: center;
             border-radius: 3px;
-            background: #2c3e50;
+            background: #333;
             padding: 5px 10px;
             margin-left: 8px;
         }
@@ -153,7 +162,7 @@
             width: 0;
             height: 0;
             border-top: 7px solid transparent;
-            border-right: 7px solid #2c3e50;
+            border-right: 7px solid #333;
             border-bottom: 7px solid transparent;
             content: '';
         }
@@ -252,10 +261,10 @@
                         <figure class="image is-16by9" style="background-color: {{ value }};">
                             <div class="center-content has-text-centered{{#if specs.isDark }} is-dark {{/if}}">
                                 {{#if different}}
-                                <h3 class="title is-4">{{ title }}</h3>
+                                <h3 class="title is-4 is-uppercase">{{ title }}</h3>
                                 {{else}}
                                 <h3 class="title is-4">{{ title }}</h3>
-                                <p class="subtitle is-6">{{ value }}</p>
+                                <p class="subtitle is-6 is-uppercase">{{ value }}</p>
                                 {{/if}}
                             </div>
                         </figure>
@@ -269,12 +278,14 @@
                             <div class="media-content">
                                 <p class="small">MOST SIMILAR</p>
                                 <p class="title is-5">{{ name }}</p>
-                                <p class="js-matched subtitle is-6">{{ matched }}</p>
+                                <p class="js-matched subtitle is-6 is-uppercase">{{ matched }}</p>
                             </div>
                         </div>
+                        <div class="column"></div>
                         {{/if}}
                 
                         <div class="content">
+                            <p class="is-6 is-uppercase ">conversions</p>
                             <table class="mono">
                                 <tbody>
                                     {{#each spaces}}
@@ -289,6 +300,8 @@
                                     {{/each}}
                                 </tbody>
                             </table>
+
+                            <div class="column"></div>
                             
                             <p class="is-6 is-uppercase ">triad</p>
                             <div class="columns is-centered is-mobile is-variable is-1">
