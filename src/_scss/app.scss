@@ -1,0 +1,73 @@
+@media only screen and (min-width: 650px) {
+    .card-single {
+        min-width: 600px;
+    }
+}
+
+.center-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    padding: 1rem;
+}
+
+.center-content.is-dark .title,
+.center-content.is-dark .subtitle {
+    color: #fff;
+}
+
+.mono {
+    font-family: monospace;
+}
+
+.color-picker-h,
+.color-picker-sv {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+}
+/* tooltips */
+.tippy-popper {
+    font-family: monospace;
+    text-transform: uppercase;
+}
+
+/* rangeslider css */
+
+
+
+.hidden {
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+}
+
+.delete.overinput {
+    right: 1rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.main-title {
+    font-weight: 900;
+    font-size: 4.5rem;
+    text-shadow: 0.1rem 0.1rem 0.4rem #bababa;
+}
+.section {
+    padding: .8rem .8rem;
+}
+.js-matched {
+    cursor: pointer;
+    border-bottom: 1px dashed; 
+}
+.no-mb,
+.title:not(:last-child).no-mb {
+    margin-bottom: 0;
+}
