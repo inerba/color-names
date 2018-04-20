@@ -244,6 +244,7 @@ var colorNamesJson = [];
             // Clean input field
             document.querySelector('.delete.overinput').addEventListener('click', function () {
                 document.querySelector(options.searchInput).value = '';
+                document.querySelector(options.searchInput).focus();
             });
         };
 
@@ -251,6 +252,7 @@ var colorNamesJson = [];
             var jsMatched = document.querySelectorAll('.js-matched');
             for (var i = 0; i < jsMatched.length; i++) {
                 jsMatched[i].addEventListener('click', function () {
+
                     searchByHex(this.innerHTML);
                     rgbSlider.set(this.innerHTML);
                 });
