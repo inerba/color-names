@@ -1,3 +1,4 @@
+var namedColors = require('color-name-list');
 var convert = require('color-convert');
 var Fuse = require("fuse.js");
 var nearestColor = require('nearest-color');
@@ -6,8 +7,10 @@ var Handlebars = require('handlebars');
 const tippy = require('tippy.js')
 
 // All color names in json var
-var hexArr = {}
-var colorNamesJson = [];
+var colors = {}
+namedColors.colorNameList.forEach(color => {
+    colors[color.name] = color.hex
+});
 
 (function () {
 
@@ -120,62 +123,6 @@ var colorNamesJson = [];
             }
         }
     })();
-
-    // Color names
-    var colorNames = (function () {
-
-        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
-
-        var loadJSON = function (callback) {
-            console.log('Load items from file');  
-            var xobj = new XMLHttpRequest();
-            xobj.overrideMimeType("application/json");
-            xobj.open('GET', colornamesFile, true);
-            xobj.onreadystatechange = function () {
-                if (xobj.readyState == 4 && xobj.status == "200") {
-                    // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-                    callback(xobj.responseText);
-                }
-            };
-            xobj.send(null);
-        }
-
-        return {
-            init: function () {
-                
-                colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                hexArr = JSON.parse(localStorage.getItem('hexArr'));
-
-                if(colorNamesJson === null) {
-                    loadJSON(function (response) {
-                        let colorNamesResponse = JSON.parse(response);
-                        
-                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));               
-                        
-                        let byHexIndex = {};
-                        for (var i = 0; i < colorNamesResponse.length; i++) {
-                            byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
-                        }                      
-                        
-                        localStorage.setItem('colorNames', response);
-                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
-
-                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                        hexArr = JSON.parse(localStorage.getItem('hexArr'));
-
-                    });
-                }
-            },
-            json: function () {
-                return colorNamesJson;
-            }
-        }
-
-
-    })();
-
-    // Init and store color database
-    colorNames.init();
 
     // Search engine
     var searchEngine = (function (rgbSlider) {
@@ -311,7 +258,7 @@ var colorNamesJson = [];
 
         var searchByHex = function(hex) {
 
-            var nearest = nearestColor.from(hexArr);
+            var nearest = nearestColor.from(colors);
             var match = nearest(hex);
 
             if(!isHexColor(hex)){
@@ -331,7 +278,7 @@ var colorNamesJson = [];
         }
 
         var searchByString = function(query) {
-            let colorSearch = new Fuse(colorNamesJson, {
+            let colorSearch = new Fuse(namedColors.colorNameList, {
                 shouldSort: true,
                 includeScore: true,
                 threshold: 0.3,
