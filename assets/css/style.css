@@ -109,13 +109,13 @@ label.range-slider__label {
       transition: background .15s ease-in-out; }
       .range-slider__range::-webkit-slider-thumb:hover {
         background: #333;
-        background: #999; }
+        background: #333; }
       .range-slider__range::-webkit-slider-thumb:active {
         background: #333;
-        background: #999; }
+        background: #333; }
         .range-slider__range::-webkit-slider-thumb:active::-webkit-slider-thumb {
           background: #333;
-          background: #999; }
+          background: #333; }
     .range-slider__range::-moz-range-thumb {
       width: 20px;
       height: 20px;
@@ -128,10 +128,10 @@ label.range-slider__label {
       transition: background .15s ease-in-out; }
       .range-slider__range::-moz-range-thumb:hover {
         background: #333;
-        background: #999; }
+        background: #333; }
       .range-slider__range::-moz-range-thumb:active::-moz-range-thumb {
         background: #333;
-        background: #999; }
+        background: #333; }
   .range-slider__value {
     display: inline-block;
     position: relative;
