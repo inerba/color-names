@@ -229,11 +229,12 @@ var colorNamesJson = [];
 
         var events = function events() {
 
-            document.querySelector(options.searchInput).addEventListener('keypress', function (e) {
+            document.querySelector(options.searchInput).addEventListener('keypress', function (e, el) {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
                 if (keyCode == '13') {
                     search();
+                    document.querySelector(options.searchInput).blur();
                 }
             });
 

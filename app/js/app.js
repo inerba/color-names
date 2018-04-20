@@ -233,11 +233,12 @@ var colorNamesJson = [];
 
         var events = function () {
            
-            document.querySelector(options.searchInput).addEventListener('keypress', (e) => {
+            document.querySelector(options.searchInput).addEventListener('keypress', (e,el) => {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
                 if (keyCode == '13') {
                     search();
+                    document.querySelector(options.searchInput).blur();
                 }
             });
 
@@ -257,7 +258,7 @@ var colorNamesJson = [];
             let jsMatched = document.querySelectorAll('.js-matched');
             for (var i = 0; i < jsMatched.length; i++) {
                 jsMatched[i].addEventListener('click', function () {
-                    
+
                     searchByHex(this.innerHTML);
                     rgbSlider.set(this.innerHTML);
                 });
