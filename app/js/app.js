@@ -1,12 +1,12 @@
-var namedColors = require('color-name-list');
-var convert = require('color-convert');
-var Fuse = require("fuse.js");
-var nearestColor = require('nearest-color');
-var tinycolor = require("tinycolor2"); 
-var Handlebars = require('handlebars');
-var noUiSlider = require('nouislider');
-var wNumb = require('wnumb');
-const tippy = require('tippy.js')
+//var namedColors = require('color-name-list'); //600k 50%
+var convert = require('color-convert'); //25k
+var Fuse = require("fuse.js"); //20k
+var nearestColor = require('nearest-color'); //10k
+var tinycolor = require("tinycolor2"); //30k
+var Handlebars = require('handlebars'); //300k
+var noUiSlider = require('nouislider'); //60k
+var wNumb = require('wnumb'); //10k
+var tippy = require('tippy.js') //200k
 
 // All color names in json var
 var hexArr = {}
@@ -19,20 +19,21 @@ var colorNamesJson = [];
         return {
             title: '.main-title',
             searchInput: '.js-searchInput',
+            reset: '.delete.overinput'
         };
     })();
 
     var rgbSlider = (function () {
-        
+
         var RGB = [0,0,0],
             active_class = 'noUi-active',
             sliders = document.getElementById('rgbSliders').querySelectorAll('.range-slider'),
             searchInput = document.querySelector(GUI.searchInput);
 
         var events = function () {
-            
-            [].slice.call(sliders).forEach(function( slider, i ) {
-                
+
+            sliders.forEach((slider, index) => {
+
                 // Inizializzo lo slider
                 noUiSlider.create(slider, {
                     start: [0],
@@ -46,12 +47,12 @@ var colorNamesJson = [];
                         decimals: 0,
                     })
                 });
-                
+
                 // Mentre muovo lo slider
                 slider.noUiSlider.on('update', function(val) {
-                    
+
                     // Aggiorno l'array dei colori con il colore corrente
-                    RGB[i] = val[0];
+                    RGB[index] = val[0];
 
                     if(val[0] > 0) {
                         slider.classList.add(active_class);
@@ -62,7 +63,7 @@ var colorNamesJson = [];
                 });
 
                 // Quando ho finito di muovere
-                slider.noUiSlider.on('set', function(val) {               
+                slider.noUiSlider.on('set', function(val) {
                     slider.classList.remove(active_class);
                     search();
                 });
@@ -72,10 +73,10 @@ var colorNamesJson = [];
 
         var bgSlider = function(id) {
 
-            [].slice.call(sliders).forEach(function( slider, index ){
-                let bgStyle, 
-                    R = RGB[0], 
-                    G = RGB[1], 
+            sliders.forEach((slider, index) => {
+                let bgStyle,
+                    R = RGB[0],
+                    G = RGB[1],
                     B = RGB[2];
 
                 switch (slider.id) {
@@ -95,7 +96,7 @@ var colorNamesJson = [];
                 if(slider.children[0] !== undefined) {
                     slider.children[0].style.backgroundImage = bgStyle;
                 }
-                
+
             });
          }
 
@@ -103,8 +104,8 @@ var colorNamesJson = [];
 
             RGB = [R, G, B];
 
-            [].slice.call(sliders).forEach(function (slider, index) {
-            
+            sliders.forEach((slider, index) => {
+
                 switch (slider.id) {
                     case 'R':
                         slider.noUiSlider.set(R);
@@ -139,7 +140,7 @@ var colorNamesJson = [];
 
             document.querySelector(GUI.title).style.color = hex;
         };
-        
+
         var search = function() {
             let hex = getHex();
             searchEngine.hex(hex);
@@ -161,7 +162,7 @@ var colorNamesJson = [];
         var pad = function(n){
             return (n.length<2) ? "0"+n : n;
         };
-            
+
         return {
             init: function () {
                 events();
@@ -177,50 +178,50 @@ var colorNamesJson = [];
     // Color names
     var colorNames = (function () {
 
-        // var colornamesFile = './assets/vendor/color-name-list/colornames.json';
+        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
-        // var loadJSON = function (callback) {
-        //     console.log('Load items from file');  
-        //     var xobj = new XMLHttpRequest();
-        //     xobj.overrideMimeType("application/json");
-        //     xobj.open('GET', colornamesFile, true);
-        //     xobj.onreadystatechange = function () {
-        //         if (xobj.readyState == 4 && xobj.status == "200") {
-        //             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-        //             callback(xobj.responseText);
-        //         }
-        //     };
-        //     xobj.send(null);
-        // }
+        var loadJSON = function (callback) {
+            console.log('Load items from file');
+            var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+            xobj.open('GET', colornamesFile, true);
+            xobj.onreadystatechange = function () {
+                if (xobj.readyState == 4 && xobj.status == "200") {
+                    //Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                    callback(xobj.responseText);
+                }
+            };
+            xobj.send(null);
+        }
 
         return {
             init: function () {
 
-                namedColors.colorNameList.forEach(color => {
-                    hexArr[color.name] = color.hex
-                });
-                // colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                // hexArr = JSON.parse(localStorage.getItem('hexArr'));
+                // namedColors.colorNameList.forEach(color => {
+                //     hexArr[color.name] = color.hex
+                // });
+                colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                hexArr = JSON.parse(localStorage.getItem('hexArr'));
 
-                // if(colorNamesJson === null) {
-                //     loadJSON(function (response) {
-                //         let colorNamesResponse = JSON.parse(response);
-                        
-                //         colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));               
-                        
-                //         let byHexIndex = {};
-                //         for (var i = 0; i < colorNamesResponse.length; i++) {
-                //             byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
-                //         }                      
-                        
-                //         localStorage.setItem('colorNames', response);
-                //         localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
+                if(colorNamesJson === null) {
+                    loadJSON(function (response) {
+                        let colorNamesResponse = JSON.parse(response);
 
-                //         colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                //         hexArr = JSON.parse(localStorage.getItem('hexArr'));
+                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
 
-                //     });
-                // }
+                        let byHexIndex = {};
+                        for (var i = 0; i < colorNamesResponse.length; i++) {
+                            byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
+                        }
+
+                        localStorage.setItem('colorNames', response);
+                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));
+
+                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                        hexArr = JSON.parse(localStorage.getItem('hexArr'));
+
+                    });
+                }
             },
             json: function () {
                 return colorNamesJson;
@@ -241,7 +242,7 @@ var colorNamesJson = [];
 
         var Color = function(name, value, matched) {
             let col = tinycolor(value);
-            
+
             this.name = name;
             this.value = value;
             this.matched = matched;
@@ -264,7 +265,7 @@ var colorNamesJson = [];
                 return this.name;
             }
         };
-        
+
         Color.prototype.spaces = function() {
             let spaces = [
                 { title: "rgb", value: convert.hex.rgb(this.value)},
@@ -279,7 +280,7 @@ var colorNamesJson = [];
         };
 
         var events = function () {
-           
+
             document.querySelector(GUI.searchInput).addEventListener('keypress', (e,el) => {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
@@ -294,7 +295,7 @@ var colorNamesJson = [];
             // });
 
             // Clean input field
-            document.querySelector('.delete.overinput').addEventListener('click',function(){
+            document.querySelector(GUI.reset).addEventListener('click',function(){
                 document.querySelector(GUI.searchInput).value = '';
                 document.querySelector(GUI.searchInput).focus();
             });
@@ -315,7 +316,7 @@ var colorNamesJson = [];
             let colBox = document.querySelectorAll('.js-col-hover');
             for (let i = 0; i < colBox.length; i++) {
 
-                tippy(colBox[i], { 
+                tippy(colBox[i], {
                     dynamicTitle: true,
                     arrow: true,
                     interactive: true,
@@ -363,7 +364,7 @@ var colorNamesJson = [];
 
             if(!isHexColor(hex)){
                 UIcontroller.showError({message:hex +' is not a valid hex color'});
-                document.querySelector(GUI.searchInput).value = '';                        
+                document.querySelector(GUI.searchInput).value = '';
             } else {
                 let newColor = new Color(match.name, hex, match.value);
                 if(match.distance === 0){
@@ -371,9 +372,9 @@ var colorNamesJson = [];
                 } else {
                     newColor.different = true;
                 }
-                
+
                 UIcontroller.showResult(newColor);
-                document.querySelector(GUI.searchInput).value = hex;         
+                document.querySelector(GUI.searchInput).value = hex;
             }
         }
 
@@ -395,13 +396,13 @@ var colorNamesJson = [];
             let allResults = colorSearch.search(query);
             let max = options.max > allResults.length ? allResults.length : options.max;
             let results = [];
-            
+
             let colors = [];
             for (var i = 0; i < max; i++) {
                 let newColor = new Color(allResults[i].item.name, allResults[i].item.hex, allResults[i].item.hex);
                 colors.push(newColor);
             }
-            
+
             if(colors.length > 0) {
                 UIcontroller.showCards(colors);
             } else {
@@ -461,5 +462,5 @@ var colorNamesJson = [];
             }
         };
     })();
-    
+
 })();
