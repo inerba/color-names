@@ -17,9 +17,11 @@
     "fuse.js": "^3.2.0",
     "handlebars": "^4.0.11",
     "nearest-color": "^0.4.2",
+    "nouislider": "^11.1.0",
     "tinycolor2": "^1.4.1",
     "tippy.js": "^2.5.2",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "wnumb": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.44",

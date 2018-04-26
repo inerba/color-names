@@ -4,50 +4,107 @@ var Fuse = require("fuse.js");
 var nearestColor = require('nearest-color');
 var tinycolor = require("tinycolor2"); 
 var Handlebars = require('handlebars');
+var noUiSlider = require('nouislider');
+var wNumb = require('wnumb');
 const tippy = require('tippy.js')
 
 // All color names in json var
-var colors = {}
-namedColors.colorNameList.forEach(color => {
-    colors[color.name] = color.hex
-});
+var hexArr = {}
+var colorNamesJson = [];
 
 (function () {
 
-    var rgbSlider  = (function () {
-
-        var R = document.querySelector('.js-rgbR'),
-            G = document.querySelector('.js-rgbG'),
-            B = document.querySelector('.js-rgbB'),
-            rgbSliders = document.querySelector('.rgbSliders'),
+    var rangeSlider = (function () {
+        
+        var RGB = [0,0,0],
+            sliders = document.getElementById('rangeSliders').querySelectorAll('.range-slider'),
             input = document.querySelector('.js-searchInput');
 
         var events = function () {
-            let sliders = rgbSliders.getElementsByTagName('input');
             
             for (let i = 0; i < sliders.length; i++) {
-                sliders[i].addEventListener('change', search);
-                sliders[i].addEventListener('input', () => {
-                    setSlider(sliders[i]);
-                    setInputField();
+                
+                let slider = sliders[i];
+
+                // Inizializzo lo slider
+                noUiSlider.create(slider, {
+                    start: [0],
+                    step: 1,
+                    tooltips: [ true ],
+                    range: {
+                        'min': 0,
+                        'max': 255
+                    },
+                    format: wNumb({
+                        decimals: 0,
+                    })
                 });
+                
+                // Mentre muovo lo slider
+                slider.noUiSlider.on('update', function(val) {
+                    
+                    // Aggiorno l'array dei colori con il colore corrente
+                    RGB[i] = val[0];
+
+                    if(val[0] > 0) {
+                        slider.classList.add('noUi-active');
+                    }
+
+                    setInputField();
+                    setSlider(slider.id);
+                });
+
+                // Quando ho finito di muovere
+                slider.noUiSlider.on('set', function(val) {               
+                    slider.classList.remove('noUi-active');
+                    search();
+                });
+
             }
-
         };
 
-        var search = function() {
-            let hex = getHex();
-            searchEngine.hex(hex);
-        };
+        var setSlider = function(id) {
 
-        var setSlider = function(slider) {
-        
-           R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;           
-           G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;           
-           B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`;  
-          
-           slider.parentElement.children[2].innerHTML = slider.value;
-        }
+            [].slice.call(sliders).forEach(function( slider, index ){
+                let bgStyle;
+
+                if(slider.id === 'R') {
+                    bgStyle = `linear-gradient(to right, rgb(0, ${RGB[1]}, ${RGB[2]}), rgb(255, ${RGB[1]}, ${RGB[2]}))`;
+                } else if(slider.id === 'G') {
+                    bgStyle = `linear-gradient(to right, rgb(${RGB[0]}, 0, ${RGB[2]}), rgb(${RGB[0]}, 255, ${RGB[2]}))`;
+                } else if(slider.id === 'B') {
+                    bgStyle = `linear-gradient(to right, rgb(${RGB[0]}, ${RGB[1]}, 0), rgb(${RGB[0]}, ${RGB[1]}, 255))`;
+                }
+
+                if(slider.children[0] !== undefined) {
+                    slider.children[0].style.backgroundImage = bgStyle;
+                }
+                
+
+            });
+
+         }
+
+         var setSliders = function(r, g, b) {
+            RGB[0] = r;
+            RGB[1] = g;
+            RGB[2] = b;
+
+            [].slice.call(sliders).forEach(function( slider, index ){
+                let bgStyle;
+
+                if(slider.id === 'R') {
+                    slider.noUiSlider.set(r);
+                } else if(slider.id === 'G') {
+                    slider.noUiSlider.set(g);
+                } else if(slider.id === 'B') {
+                    slider.noUiSlider.set(b);
+                }
+
+            });
+
+            setInputField();
+        };
 
         var setInputField = function() {
             let hex = getHex(),
@@ -64,65 +121,215 @@ namedColors.colorNameList.forEach(color => {
 
             document.querySelector('.main-title').style.color = hex;
         };
+        
 
-        var setSliders = function(r, g, b) {
-            R.value = r;
-            G.value = g;
-            B.value = b;
-
-            R.parentElement.children[2].innerHTML = r;
-            R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;
-
-            G.parentElement.children[2].innerHTML = g;
-            G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;
-            
-            B.parentElement.children[2].innerHTML = b;
-            B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`; 
-
-            setInputField();
+        var search = function() {
+            let hex = getHex();
+            searchEngine.hex(hex);
         };
 
         // outils
         var getHex = function () {
-            let r_hex = parseInt(R.value, 10).toString(16),
-                g_hex = parseInt(G.value, 10).toString(16),
-                b_hex = parseInt(B.value, 10).toString(16);
-            
-            return "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
+
+            let hex = [];
+
+            RGB.forEach((e, i) => {
+                let chex = parseInt(e, 10).toString(16);
+                hex[i] = pad(chex);
+            });
+
+            return '#' + hex.join('');
         };
 
         var pad = function(n){
             return (n.length<2) ? "0"+n : n;
         };
-
-        var hideSliders = function() {
-            rgbSliders.classList.add("hidden");
-        };
-        var showSliders = function() {
-            rgbSliders.classList.remove("hidden");
-        };
-
+            
+        // noUiSlider.create(r_slider, defaults);
         return {
             init: function () {
-              events();
-              /*setSliders(
-                Math.floor(Math.random() * 255), 
-                Math.floor(Math.random() * 255), 
-                Math.floor(Math.random() * 255), 
-              );*/
+                events();
             },
             set: function (hex) {
                 let rgb = tinycolor(hex).toRgb();
                 setSliders(rgb.r,rgb.g,rgb.b);
             },
-            hide: function() {
-                hideSliders();
+        }
+
+
+    })();
+
+
+    // var rgbSlider  = (function () {
+
+    //     var R = document.querySelector('.js-rgbR'),
+    //         G = document.querySelector('.js-rgbG'),
+    //         B = document.querySelector('.js-rgbB'),
+    //         rgbSliders = document.querySelector('.rgbSliders'),
+    //         input = document.querySelector('.js-searchInput');
+
+    //     var events = function () {
+    //         let sliders = rgbSliders.getElementsByTagName('input');
+            
+    //         for (let i = 0; i < sliders.length; i++) {
+    //             sliders[i].addEventListener('change', search);
+    //             sliders[i].addEventListener('input', () => {
+    //                 setSlider(sliders[i]);
+    //                 setInputField();
+    //             });
+    //         }
+
+    //     };
+
+    //     var search = function() {
+    //         let hex = getHex();
+    //         searchEngine.hex(hex);
+    //     };
+
+    //     var setSlider = function(slider) {
+        
+    //        R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;           
+    //        G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;           
+    //        B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`;  
+          
+    //        slider.parentElement.children[2].innerHTML = slider.value;
+    //     }
+
+    //     var setInputField = function() {
+    //         let hex = getHex(),
+    //             col = tinycolor(hex);
+
+    //         input.style.backgroundColor = hex;
+    //         input.value = hex;
+
+    //         if(col.isDark()){
+    //             input.style.color = '#fff';
+    //         } else {
+    //             input.style.color = '#000';
+    //         }
+
+    //         document.querySelector('.main-title').style.color = hex;
+    //     };
+
+    //     var setSliders = function(r, g, b) {
+    //         R.value = r;
+    //         G.value = g;
+    //         B.value = b;
+
+    //         R.parentElement.children[2].innerHTML = r;
+    //         R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;
+
+    //         G.parentElement.children[2].innerHTML = g;
+    //         G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;
+            
+    //         B.parentElement.children[2].innerHTML = b;
+    //         B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`; 
+
+    //         setInputField();
+    //     };
+
+    //     // outils
+    //     var getHex = function () {
+    //         let r_hex = parseInt(R.value, 10).toString(16),
+    //             g_hex = parseInt(G.value, 10).toString(16),
+    //             b_hex = parseInt(B.value, 10).toString(16);
+            
+    //         return "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
+    //     };
+
+    //     var pad = function(n){
+    //         return (n.length<2) ? "0"+n : n;
+    //     };
+
+    //     var hideSliders = function() {
+    //         rgbSliders.classList.add("hidden");
+    //     };
+    //     var showSliders = function() {
+    //         rgbSliders.classList.remove("hidden");
+    //     };
+
+    //     return {
+    //         init: function () {
+    //           events();
+    //           /*setSliders(
+    //             Math.floor(Math.random() * 255), 
+    //             Math.floor(Math.random() * 255), 
+    //             Math.floor(Math.random() * 255), 
+    //           );*/
+    //         },
+    //         set: function (hex) {
+    //             let rgb = tinycolor(hex).toRgb();
+    //             setSliders(rgb.r,rgb.g,rgb.b);
+    //         },
+    //         hide: function() {
+    //             hideSliders();
+    //         },
+    //         show: function() {
+    //             showSliders();
+    //         }
+    //     }
+    // })();
+
+    // Color names
+    var colorNames = (function () {
+/*
+        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
+
+        var loadJSON = function (callback) {
+            console.log('Load items from file');  
+            var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+            xobj.open('GET', colornamesFile, true);
+            xobj.onreadystatechange = function () {
+                if (xobj.readyState == 4 && xobj.status == "200") {
+                    // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                    callback(xobj.responseText);
+                }
+            };
+            xobj.send(null);
+        }
+*/
+        return {
+            init: function () {
+
+                namedColors.colorNameList.forEach(color => {
+                    hexArr[color.name] = color.hex
+                });
+                /*
+                colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                hexArr = JSON.parse(localStorage.getItem('hexArr'));
+
+                if(colorNamesJson === null) {
+                    loadJSON(function (response) {
+                        let colorNamesResponse = JSON.parse(response);
+                        
+                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));               
+                        
+                        let byHexIndex = {};
+                        for (var i = 0; i < colorNamesResponse.length; i++) {
+                            byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
+                        }                      
+                        
+                        localStorage.setItem('colorNames', response);
+                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
+
+                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                        hexArr = JSON.parse(localStorage.getItem('hexArr'));
+
+                    });
+                }
+                */
             },
-            show: function() {
-                showSliders();
+            json: function () {
+                return colorNamesJson;
             }
         }
+
+
     })();
+
+    // Init and store color database
+    colorNames.init();
 
     // Search engine
     var searchEngine = (function (rgbSlider) {
@@ -189,9 +396,9 @@ namedColors.colorNameList.forEach(color => {
                 }
             });
 
-            document.querySelector(options.searchInput).addEventListener('click', function (e) {
-                rgbSlider.show();
-            });
+            // document.querySelector(options.searchInput).addEventListener('click', function (e) {
+            //     rgbSlider.show();
+            // });
 
             // Clean input field
             document.querySelector('.delete.overinput').addEventListener('click',function(){
@@ -207,7 +414,7 @@ namedColors.colorNameList.forEach(color => {
                 jsMatched[i].addEventListener('click', function () {
 
                     searchByHex(this.innerHTML);
-                    rgbSlider.set(this.innerHTML);
+                    rangeSlider.set(this.innerHTML);
                 });
             }
 
@@ -245,7 +452,7 @@ namedColors.colorNameList.forEach(color => {
                     document.querySelector('.js-searchInput').style.color = '#000';
                 }
 
-                rgbSlider.set(hex);
+                rangeSlider.set(hex);
 
             } else {
                 searchByString(query);
@@ -253,12 +460,12 @@ namedColors.colorNameList.forEach(color => {
                 document.querySelector('.js-searchInput').style.color = '#000';
 
             }
-            rgbSlider.hide();
+            //rgbSlider.hide();
         };
 
         var searchByHex = function(hex) {
 
-            var nearest = nearestColor.from(colors);
+            var nearest = nearestColor.from(hexArr);
             var match = nearest(hex);
 
             if(!isHexColor(hex)){
@@ -322,11 +529,12 @@ namedColors.colorNameList.forEach(color => {
             },
         }
 
-    })(rgbSlider);
+    })();
 
     document.addEventListener("DOMContentLoaded", function(event) {
         searchEngine.init();
-        rgbSlider.init();
+        //rgbSlider.init();
+        rangeSlider.init();
     });
 
     var UIcontroller = (function() {
