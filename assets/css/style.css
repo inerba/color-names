@@ -308,11 +308,15 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-origin {
   -webkit-transition: all .3s;
   -o-transition: all .3s;
   transition: all .3s;
-  outline: 0; }
-  .noUi-handle:active {
-    -webkit-transform: scale(1.6);
-         -o-transform: scale(1.6);
-            transform: scale(1.6); }
+  outline: 0;
+  /*&:active{
+        transform: scale(1.6);
+    }*/ }
+
+.noUi-active .noUi-handle {
+  -webkit-transform: scale(1.6);
+       -o-transform: scale(1.6);
+          transform: scale(1.6); }
 
 html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
   right: -17px;

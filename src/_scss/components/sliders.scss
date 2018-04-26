@@ -237,9 +237,13 @@ input::-moz-focus-outer {
 .noUi-handle {
     transition: all .3s;
     outline:0;
-    &:active{
+    /*&:active{
         transform: scale(1.6);
-    }
+    }*/
+}
+
+.noUi-active .noUi-handle {
+    transform: scale(1.6);
 }
 
  html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
