@@ -14,18 +14,25 @@ var colorNamesJson = [];
 
 (function () {
 
-    var rangeSlider = (function () {
+    // Elementi importanti dell'interfaccia
+    var GUI = (function () {
+        return {
+            title: '.main-title',
+            searchInput: '.js-searchInput',
+        };
+    })();
+
+    var rgbSlider = (function () {
         
         var RGB = [0,0,0],
-            sliders = document.getElementById('rangeSliders').querySelectorAll('.range-slider'),
-            input = document.querySelector('.js-searchInput');
+            active_class = 'noUi-active',
+            sliders = document.getElementById('rgbSliders').querySelectorAll('.range-slider'),
+            searchInput = document.querySelector(GUI.searchInput);
 
         var events = function () {
             
-            for (let i = 0; i < sliders.length; i++) {
+            [].slice.call(sliders).forEach(function( slider, i ) {
                 
-                let slider = sliders[i];
-
                 // Inizializzo lo slider
                 noUiSlider.create(slider, {
                     start: [0],
@@ -47,58 +54,69 @@ var colorNamesJson = [];
                     RGB[i] = val[0];
 
                     if(val[0] > 0) {
-                        slider.classList.add('noUi-active');
+                        slider.classList.add(active_class);
                     }
 
                     setInputField();
-                    setSlider(slider.id);
+                    bgSlider(slider.id);
                 });
 
                 // Quando ho finito di muovere
                 slider.noUiSlider.on('set', function(val) {               
-                    slider.classList.remove('noUi-active');
+                    slider.classList.remove(active_class);
                     search();
                 });
 
-            }
+            });
         };
 
-        var setSlider = function(id) {
+        var bgSlider = function(id) {
 
             [].slice.call(sliders).forEach(function( slider, index ){
-                let bgStyle;
+                let bgStyle, 
+                    R = RGB[0], 
+                    G = RGB[1], 
+                    B = RGB[2];
 
-                if(slider.id === 'R') {
-                    bgStyle = `linear-gradient(to right, rgb(0, ${RGB[1]}, ${RGB[2]}), rgb(255, ${RGB[1]}, ${RGB[2]}))`;
-                } else if(slider.id === 'G') {
-                    bgStyle = `linear-gradient(to right, rgb(${RGB[0]}, 0, ${RGB[2]}), rgb(${RGB[0]}, 255, ${RGB[2]}))`;
-                } else if(slider.id === 'B') {
-                    bgStyle = `linear-gradient(to right, rgb(${RGB[0]}, ${RGB[1]}, 0), rgb(${RGB[0]}, ${RGB[1]}, 255))`;
+                switch (slider.id) {
+                    case 'R':
+                        bgStyle = `linear-gradient(to right, rgb(0, ${R}, ${G}), rgb(255, ${R}, ${G}))`;
+                        break;
+
+                    case 'G':
+                        bgStyle = `linear-gradient(to right, rgb(${B}, 0, ${G}), rgb(${B}, 255, ${G}))`;
+                        break;
+
+                    case 'B':
+                        bgStyle = `linear-gradient(to right, rgb(${B}, ${R}, 0), rgb(${B}, ${R}, 255))`;
+                        break;
                 }
 
                 if(slider.children[0] !== undefined) {
                     slider.children[0].style.backgroundImage = bgStyle;
                 }
                 
-
             });
-
          }
 
-         var setSliders = function(r, g, b) {
-            RGB[0] = r;
-            RGB[1] = g;
-            RGB[2] = b;
+         var setSliders = function(R, G, B) {
 
-            [].slice.call(sliders).forEach(function( slider, index ){
-                let bgStyle;
+            RGB = [R, G, B];
 
-                if(slider.id === 'R') {
-                    slider.noUiSlider.set(r);
-                } else if(slider.id === 'G') {
-                    slider.noUiSlider.set(g);
-                } else if(slider.id === 'B') {
-                    slider.noUiSlider.set(b);
+            [].slice.call(sliders).forEach(function (slider, index) {
+            
+                switch (slider.id) {
+                    case 'R':
+                        slider.noUiSlider.set(R);
+                        break;
+
+                    case 'G':
+                        slider.noUiSlider.set(G);
+                        break;
+
+                    case 'B':
+                        slider.noUiSlider.set(B);
+                        break;
                 }
 
             });
@@ -110,19 +128,18 @@ var colorNamesJson = [];
             let hex = getHex(),
                 col = tinycolor(hex);
 
-            input.style.backgroundColor = hex;
-            input.value = hex;
+            searchInput.style.backgroundColor = hex;
+            searchInput.value = hex;
 
             if(col.isDark()){
-                input.style.color = '#fff';
+                searchInput.style.color = '#fff';
             } else {
-                input.style.color = '#000';
+                searchInput.style.color = '#000';
             }
 
-            document.querySelector('.main-title').style.color = hex;
+            document.querySelector(GUI.title).style.color = hex;
         };
         
-
         var search = function() {
             let hex = getHex();
             searchEngine.hex(hex);
@@ -145,7 +162,6 @@ var colorNamesJson = [];
             return (n.length<2) ? "0"+n : n;
         };
             
-        // noUiSlider.create(r_slider, defaults);
         return {
             init: function () {
                 events();
@@ -156,169 +172,55 @@ var colorNamesJson = [];
             },
         }
 
-
     })();
-
-
-    // var rgbSlider  = (function () {
-
-    //     var R = document.querySelector('.js-rgbR'),
-    //         G = document.querySelector('.js-rgbG'),
-    //         B = document.querySelector('.js-rgbB'),
-    //         rgbSliders = document.querySelector('.rgbSliders'),
-    //         input = document.querySelector('.js-searchInput');
-
-    //     var events = function () {
-    //         let sliders = rgbSliders.getElementsByTagName('input');
-            
-    //         for (let i = 0; i < sliders.length; i++) {
-    //             sliders[i].addEventListener('change', search);
-    //             sliders[i].addEventListener('input', () => {
-    //                 setSlider(sliders[i]);
-    //                 setInputField();
-    //             });
-    //         }
-
-    //     };
-
-    //     var search = function() {
-    //         let hex = getHex();
-    //         searchEngine.hex(hex);
-    //     };
-
-    //     var setSlider = function(slider) {
-        
-    //        R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;           
-    //        G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;           
-    //        B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`;  
-          
-    //        slider.parentElement.children[2].innerHTML = slider.value;
-    //     }
-
-    //     var setInputField = function() {
-    //         let hex = getHex(),
-    //             col = tinycolor(hex);
-
-    //         input.style.backgroundColor = hex;
-    //         input.value = hex;
-
-    //         if(col.isDark()){
-    //             input.style.color = '#fff';
-    //         } else {
-    //             input.style.color = '#000';
-    //         }
-
-    //         document.querySelector('.main-title').style.color = hex;
-    //     };
-
-    //     var setSliders = function(r, g, b) {
-    //         R.value = r;
-    //         G.value = g;
-    //         B.value = b;
-
-    //         R.parentElement.children[2].innerHTML = r;
-    //         R.style.backgroundImage = `linear-gradient(to right, rgb(0, ${G.value}, ${B.value}), rgb(255, ${G.value}, ${B.value}))`;
-
-    //         G.parentElement.children[2].innerHTML = g;
-    //         G.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, 0, ${B.value}), rgb(${R.value}, 255, ${B.value}))`;
-            
-    //         B.parentElement.children[2].innerHTML = b;
-    //         B.style.backgroundImage = `linear-gradient(to right, rgb(${R.value}, ${G.value}, 0), rgb(${R.value}, ${G.value}, 255))`; 
-
-    //         setInputField();
-    //     };
-
-    //     // outils
-    //     var getHex = function () {
-    //         let r_hex = parseInt(R.value, 10).toString(16),
-    //             g_hex = parseInt(G.value, 10).toString(16),
-    //             b_hex = parseInt(B.value, 10).toString(16);
-            
-    //         return "#" + pad(r_hex) + pad(g_hex) + pad(b_hex);
-    //     };
-
-    //     var pad = function(n){
-    //         return (n.length<2) ? "0"+n : n;
-    //     };
-
-    //     var hideSliders = function() {
-    //         rgbSliders.classList.add("hidden");
-    //     };
-    //     var showSliders = function() {
-    //         rgbSliders.classList.remove("hidden");
-    //     };
-
-    //     return {
-    //         init: function () {
-    //           events();
-    //           /*setSliders(
-    //             Math.floor(Math.random() * 255), 
-    //             Math.floor(Math.random() * 255), 
-    //             Math.floor(Math.random() * 255), 
-    //           );*/
-    //         },
-    //         set: function (hex) {
-    //             let rgb = tinycolor(hex).toRgb();
-    //             setSliders(rgb.r,rgb.g,rgb.b);
-    //         },
-    //         hide: function() {
-    //             hideSliders();
-    //         },
-    //         show: function() {
-    //             showSliders();
-    //         }
-    //     }
-    // })();
 
     // Color names
     var colorNames = (function () {
-/*
-        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
-        var loadJSON = function (callback) {
-            console.log('Load items from file');  
-            var xobj = new XMLHttpRequest();
-            xobj.overrideMimeType("application/json");
-            xobj.open('GET', colornamesFile, true);
-            xobj.onreadystatechange = function () {
-                if (xobj.readyState == 4 && xobj.status == "200") {
-                    // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-                    callback(xobj.responseText);
-                }
-            };
-            xobj.send(null);
-        }
-*/
+        // var colornamesFile = './assets/vendor/color-name-list/colornames.json';
+
+        // var loadJSON = function (callback) {
+        //     console.log('Load items from file');  
+        //     var xobj = new XMLHttpRequest();
+        //     xobj.overrideMimeType("application/json");
+        //     xobj.open('GET', colornamesFile, true);
+        //     xobj.onreadystatechange = function () {
+        //         if (xobj.readyState == 4 && xobj.status == "200") {
+        //             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+        //             callback(xobj.responseText);
+        //         }
+        //     };
+        //     xobj.send(null);
+        // }
+
         return {
             init: function () {
 
                 namedColors.colorNameList.forEach(color => {
                     hexArr[color.name] = color.hex
                 });
-                /*
-                colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                hexArr = JSON.parse(localStorage.getItem('hexArr'));
+                // colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                // hexArr = JSON.parse(localStorage.getItem('hexArr'));
 
-                if(colorNamesJson === null) {
-                    loadJSON(function (response) {
-                        let colorNamesResponse = JSON.parse(response);
+                // if(colorNamesJson === null) {
+                //     loadJSON(function (response) {
+                //         let colorNamesResponse = JSON.parse(response);
                         
-                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));               
+                //         colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));               
                         
-                        let byHexIndex = {};
-                        for (var i = 0; i < colorNamesResponse.length; i++) {
-                            byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
-                        }                      
+                //         let byHexIndex = {};
+                //         for (var i = 0; i < colorNamesResponse.length; i++) {
+                //             byHexIndex[colorNamesResponse[i].name] = colorNamesResponse[i].hex;
+                //         }                      
                         
-                        localStorage.setItem('colorNames', response);
-                        localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
+                //         localStorage.setItem('colorNames', response);
+                //         localStorage.setItem('hexArr', JSON.stringify(byHexIndex));               
 
-                        colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
-                        hexArr = JSON.parse(localStorage.getItem('hexArr'));
+                //         colorNamesJson = JSON.parse(localStorage.getItem('colorNames'));
+                //         hexArr = JSON.parse(localStorage.getItem('hexArr'));
 
-                    });
-                }
-                */
+                //     });
+                // }
             },
             json: function () {
                 return colorNamesJson;
@@ -334,8 +236,6 @@ var colorNamesJson = [];
     // Search engine
     var searchEngine = (function (rgbSlider) {
         var options = {
-            searchButton: '.js-search',
-            searchInput: '.js-searchInput',
             max: 50
         };
 
@@ -378,32 +278,25 @@ var colorNamesJson = [];
             return spaces;
         };
 
-        // Color.prototype.specs = function() {
-        //     let col = tinycolor(this.value);
-        //     return {
-        //         isDark: col.isDark()
-        //     };
-        // };
-
         var events = function () {
            
-            document.querySelector(options.searchInput).addEventListener('keypress', (e,el) => {
+            document.querySelector(GUI.searchInput).addEventListener('keypress', (e,el) => {
                 if (!e) e = window.event;
                 var keyCode = e.keyCode || e.which;
                 if (keyCode == '13') {
                     search();
-                    document.querySelector(options.searchInput).blur();
+                    document.querySelector(GUI.searchInput).blur();
                 }
             });
 
-            // document.querySelector(options.searchInput).addEventListener('click', function (e) {
+            // document.querySelector(GUI.searchInput).addEventListener('click', function (e) {
             //     rgbSlider.show();
             // });
 
             // Clean input field
             document.querySelector('.delete.overinput').addEventListener('click',function(){
-                document.querySelector(options.searchInput).value = '';
-                document.querySelector(options.searchInput).focus();
+                document.querySelector(GUI.searchInput).value = '';
+                document.querySelector(GUI.searchInput).focus();
             });
 
         };
@@ -414,7 +307,7 @@ var colorNamesJson = [];
                 jsMatched[i].addEventListener('click', function () {
 
                     searchByHex(this.innerHTML);
-                    rangeSlider.set(this.innerHTML);
+                    rgbSlider.set(this.innerHTML);
                 });
             }
 
@@ -438,26 +331,26 @@ var colorNamesJson = [];
         };
 
         var search = function () {
-            var query = document.querySelector(options.searchInput).value;
+            var query = document.querySelector(GUI.searchInput).value;
 
             if (query[0] == '#') {
                 let hex = query;
                 searchByHex(hex);
-                document.querySelector('.js-searchInput').style.backgroundColor = hex;
+                document.querySelector(GUI.searchInput).style.backgroundColor = hex;
                 let col = tinycolor(hex);
 
                 if(col.isDark()){
-                    document.querySelector('.js-searchInput').style.color = '#fff';
+                    document.querySelector(GUI.searchInput).style.color = '#fff';
                 } else {
-                    document.querySelector('.js-searchInput').style.color = '#000';
+                    document.querySelector(GUI.searchInput).style.color = '#000';
                 }
 
-                rangeSlider.set(hex);
+                rgbSlider.set(hex);
 
             } else {
                 searchByString(query);
-                document.querySelector('.js-searchInput').style.backgroundColor = '';
-                document.querySelector('.js-searchInput').style.color = '#000';
+                document.querySelector(GUI.searchInput).style.backgroundColor = '';
+                document.querySelector(GUI.searchInput).style.color = '#000';
 
             }
             //rgbSlider.hide();
@@ -470,7 +363,7 @@ var colorNamesJson = [];
 
             if(!isHexColor(hex)){
                 UIcontroller.showError({message:hex +' is not a valid hex color'});
-                document.querySelector(options.searchInput).value = '';                        
+                document.querySelector(GUI.searchInput).value = '';                        
             } else {
                 let newColor = new Color(match.name, hex, match.value);
                 if(match.distance === 0){
@@ -480,7 +373,7 @@ var colorNamesJson = [];
                 }
                 
                 UIcontroller.showResult(newColor);
-                document.querySelector(options.searchInput).value = hex;         
+                document.querySelector(GUI.searchInput).value = hex;         
             }
         }
 
@@ -507,7 +400,6 @@ var colorNamesJson = [];
             for (var i = 0; i < max; i++) {
                 let newColor = new Color(allResults[i].item.name, allResults[i].item.hex, allResults[i].item.hex);
                 colors.push(newColor);
-                //console.log(allResults[i]);
             }
             
             if(colors.length > 0) {
@@ -529,12 +421,11 @@ var colorNamesJson = [];
             },
         }
 
-    })();
+    })(rgbSlider);
 
     document.addEventListener("DOMContentLoaded", function(event) {
         searchEngine.init();
-        //rgbSlider.init();
-        rangeSlider.init();
+        rgbSlider.init();
     });
 
     var UIcontroller = (function() {
