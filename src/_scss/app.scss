@@ -66,8 +66,13 @@
 .js-matched {
     cursor: pointer;
     border-bottom: 1px dashed; 
+    display: inline-block;
 }
 .no-mb,
 .title:not(:last-child).no-mb {
     margin-bottom: 0;
+}
+
+.modal-button {
+    cursor: pointer;
 }

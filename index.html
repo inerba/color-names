@@ -25,39 +25,17 @@
                     <div id="G" class="range-slider"></div>
                     <div id="B" class="range-slider"></div>
                 </div>
-                <!--
-                <div class="rgbSliders hidden">
-                    <div class="field">
-                        <div class="control range-slider">
-                            <label class="range-slider__label range-slider__label--r" for="r">R</label>
-                            <input class="js-rgbR range-slider__range" type="range" min="0" max="255" id="r" step="1" value="0" readonly=true >
-                            <span class="range-slider__value">0</span>
-                        </div>
-                    </div>
-                    
-                    <div class="field">
-                        <div class="control range-slider">
-                            <label class="range-slider__label range-slider__label--g" for="g">G</label>
-                            <input class="js-rgbG range-slider__range" type="range" min="0" max="255" id="g" step="1" value="0" readonly=true >
-                            <span class="range-slider__value">0</span>
-                        </div>
-                    </div>
-                    
-                    <div class="field">
-                        <div class="control range-slider">
-                            <label class="range-slider__label range-slider__label--b" for="b">B</label>
-                            <input class="js-rgbB range-slider__range" type="range" min="0" max="255" id="b" step="1" value="0" readonly=true >
-                            <span class="range-slider__value">0</span>
-                        </div>
-                    </div>
-                </div>
-                -->
 
             </div>
 
             <div id="results"></div>
         </div>
     </section>
+    <div class="modal modal-fx-3dFlipHorizontal" id="modalColor">
+        <div class="modal-background"></div>
+        <div class="modal-content is-tiny" id="modalContainer"></div>
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
     <script src="app/js/dist/bundle.min.js"></script>
 
     <!-- Handlebars -->
@@ -123,7 +101,7 @@
                             <div class="columns is-centered is-mobile is-variable is-1">
                                 {{#each specs.triad }}
                                 <div class="column">
-                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                    <div class="js-col-hover image is-16by9 modal-button" data-target="modalColor" style="background-color: {{ @this }}"></div>
                                 </div>
                                 {{/each}}
                             </div>
@@ -132,7 +110,7 @@
                             <div class="columns is-centered is-mobile is-variable is-1">
                                 {{#each specs.tetrad }}
                                 <div class="column">
-                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                    <div class="js-col-hover image is-16by9 modal-button" data-target="modalColor" style="background-color: {{ @this }}"></div>
                                 </div>
                                 {{/each}}
                             </div>
@@ -141,7 +119,7 @@
                             <div class="columns is-centered is-mobile is-variable is-1">
                                 {{#each specs.analogous }}
                                 <div class="column">
-                                    <div class="js-col-hover image is-1by1" style="background-color: {{ @this }}"></div>
+                                    <div class="js-col-hover image is-1by1 modal-button" data-target="modalColor" style="background-color: {{ @this }}"></div>
                                 </div>
                                 {{/each}}
                             </div>
@@ -150,7 +128,7 @@
                             <div class="columns is-centered is-mobile is-variable is-1">
                                 {{#each specs.splitcomplement }}
                                 <div class="column">
-                                    <div class="js-col-hover image is-16by9" style="background-color: {{ @this }}"></div>
+                                    <div class="js-col-hover image is-16by9 modal-button" data-target="modalColor" style="background-color: {{ @this }}"></div>
                                 </div>
                                 {{/each}}
                             </div>
@@ -160,6 +138,59 @@
                 </div>
             </div>
         </div>
+    </script>
+
+    <script id="hb-modal-card" type="text/x-handlebars-template">
+
+        <div class="card">
+            <div class="card-image">
+                <figure class="image is-16by9" style="background-color: {{ value }};">
+                    <div class="center-content has-text-centered{{#if specs.isDark }} is-dark {{/if}}">
+                        {{#if different}}
+                        <h3 class="js-matched modal-button-close title is-4 is-uppercase">{{ title }}</h3>
+                        {{else}}
+                        <h3 class="title is-4 no-mb">{{ title }}</h3>
+                        <span class="js-matched modal-button-close subtitle is-6 is-uppercase">{{ value }}</span>
+                        {{/if}}
+                    </div>
+                </figure>
+            </div>
+            <div class="card-content">
+                {{#if different}}
+                <div class="media">
+                    <div class="media-left">
+                        <figure class="image is-64x64" style="background-color: {{ matched }}"></figure>
+                    </div>
+                    <div class="media-content">
+                        <p class="small">MOST SIMILAR</p>
+                        <p class="title is-5 no-mb">{{ name }}</p>
+                        <span class="js-matched modal-button-close subtitle is-6 is-uppercase">{{ matched }}</span>
+                    </div>
+                </div>
+                <div class="column"></div>
+                {{/if}}
+        
+                <div class="content">
+                    <p class="is-6 is-uppercase ">conversions</p>
+                    <table class="mono">
+                        <tbody>
+                            {{#each spaces}}
+                            <tr>
+                                <td><strong>{{ title }}</strong></td>
+                                <td>
+                                    {{#each value }}
+                                        {{ this }}{{#unless @last}}, {{/unless}}
+                                    {{/each}}
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
     </script>
 
     <script id="hb-each-card" type="text/x-handlebars-template">

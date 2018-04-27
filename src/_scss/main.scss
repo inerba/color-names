@@ -11,5 +11,15 @@ $family-primary: 'IBM Plex Mono', monospace;
 
 @import "./components/sliders.scss";
 
+
 @import "./app.scss";
 @import "../../node_modules/bulma/bulma.sass";
+
+// Modal minimal setup
+$transition-duration: .3s;
+$transition-duration-newsPaper: .7s;
+$transition-duration-3dslit: .5s;
+
+$modal-perspective: 1300px;
+$modal-bg-color: rgba($black,.86);
+@import "../../node_modules/bulma-modal-fx/src/_scss/components/_modal-fx.scss";

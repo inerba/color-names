@@ -6,13 +6,15 @@ var tinycolor = require("tinycolor2"); //30k
 var Handlebars = require('handlebars'); //300k
 var noUiSlider = require('nouislider'); //60k
 var wNumb = require('wnumb'); //10k
-var tippy = require('tippy.js') //200k
+//var tippy = require('tippy.js') //200k
 
 // All color names in json var
 var hexArr = {}
 var colorNamesJson = [];
 
 (function () {
+
+    var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
     // Elementi importanti dell'interfaccia
     var GUI = (function () {
@@ -72,54 +74,44 @@ var colorNamesJson = [];
         };
 
         var bgSlider = function(id) {
-
+            // Imposta il gradiente di sfondo a ogni slider
             sliders.forEach((slider, index) => {
                 let bgStyle,
-                    R = RGB[0],
-                    G = RGB[1],
-                    B = RGB[2];
+                    // intervalli
+                    Ri = [RGB[0],RGB[0]],
+                    Gi = [RGB[1],RGB[1]],
+                    Bi = [RGB[2],RGB[2]];
 
                 switch (slider.id) {
                     case 'R':
-                        bgStyle = `linear-gradient(to right, rgb(0, ${R}, ${G}), rgb(255, ${R}, ${G}))`;
+                        Ri = [0,255];
                         break;
 
                     case 'G':
-                        bgStyle = `linear-gradient(to right, rgb(${B}, 0, ${G}), rgb(${B}, 255, ${G}))`;
+                        Gi = [0,255];
                         break;
 
                     case 'B':
-                        bgStyle = `linear-gradient(to right, rgb(${B}, ${R}, 0), rgb(${B}, ${R}, 255))`;
+                        Bi = [0,255];
                         break;
                 }
+
+                bgStyle = `linear-gradient(to right, rgb(${Ri[0]}, ${Gi[0]}, ${Bi[0]}), rgb(${Ri[1]}, ${Gi[1]}, ${Bi[1]}))`;
 
                 if(slider.children[0] !== undefined) {
                     slider.children[0].style.backgroundImage = bgStyle;
                 }
 
             });
-         }
+        };
 
          var setSliders = function(R, G, B) {
 
             RGB = [R, G, B];
 
+            // Imposta ogni slider sul valore impostato
             sliders.forEach((slider, index) => {
-
-                switch (slider.id) {
-                    case 'R':
-                        slider.noUiSlider.set(R);
-                        break;
-
-                    case 'G':
-                        slider.noUiSlider.set(G);
-                        break;
-
-                    case 'B':
-                        slider.noUiSlider.set(B);
-                        break;
-                }
-
+                slider.noUiSlider.set(RGB[index]);
             });
 
             setInputField();
@@ -178,7 +170,7 @@ var colorNamesJson = [];
     // Color names
     var colorNames = (function () {
 
-        var colornamesFile = './assets/vendor/color-name-list/colornames.json';
+        //var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
         var loadJSON = function (callback) {
             console.log('Load items from file');
@@ -312,19 +304,41 @@ var colorNamesJson = [];
                 });
             }
 
-            // Tooltips
+            // Modal
             let colBox = document.querySelectorAll('.js-col-hover');
-            for (let i = 0; i < colBox.length; i++) {
+            colBox.forEach((box, index) => {
+                box.addEventListener('click',function(){
+                    let rgbCol = box.style.backgroundColor,
+                        hexCol = '#' + tinycolor(rgbCol).toHex(),
+                        nearest = nearestColor.from(hexArr),
+                        match = nearest(hexCol);
 
-                tippy(colBox[i], {
-                    dynamicTitle: true,
-                    arrow: true,
-                    interactive: true,
-                    arrowType: 'sharp'
+                    let newColor = new Color(match.name, hexCol, match.value);
+                    if(match.distance === 0){
+                        newColor.title = match.name;
+                    } else {
+                        newColor.different = true;
+                    }
+                    UIcontroller.showModal(newColor);
                 });
-                colBox[i].title = tinycolor(colBox[i].style.backgroundColor).toHexString();
+            });         
 
-            }
+            // Tippy
+            // for (let i = 0; i < colBox.length; i++) {
+
+            //     tippy(colBox[i], {
+            //         dynamicTitle: true,
+            //         arrow: true,
+            //         interactive: true,
+            //         arrowType: 'sharp'
+            //     });
+            //     colBox[i].title = tinycolor(colBox[i].style.backgroundColor).toHexString();
+
+            // }
+        };
+
+        var openModal = function () {
+            
         };
 
         var isHexColor = function(hex) {
@@ -424,16 +438,90 @@ var colorNamesJson = [];
 
     })(rgbSlider);
 
+    var modal = (function () {
+
+        var elements = {
+            target: 'data-target',
+            active: 'is-active',
+            button: '.modal-button',
+            close: '.modal-close',
+            buttonClose: '.modal-button-close',
+            background: '.modal-background'
+        };
+
+        var onClickEach = function (selector, callback) {
+            var arr = document.querySelectorAll(selector);
+            arr.forEach(function (el) {
+                el.addEventListener('click', callback);
+            })
+        };
+
+        var events = function () {
+            onClickEach(elements.button, openModal);
+
+            onClickEach(elements.close, closeModal);
+            onClickEach(elements.buttonClose, closeAll);
+            onClickEach(elements.background, closeModal);
+
+            // Close all modals if ESC key is pressed
+            document.addEventListener('keyup', function(key){
+                if(key.keyCode == 27) {
+                    closeAll();
+                }
+            });
+        };
+
+        var closeAll = function() {
+            var openModal = document.querySelectorAll('.' + elements.active);
+            openModal.forEach(function (modal) {
+                modal.classList.remove(elements.active);
+            })
+            unFreeze();            
+        };
+
+        var openModal = function () {
+            var modal = this.getAttribute(elements.target);
+            freeze();
+            document.getElementById(modal).classList.add(elements.active);
+        };
+
+        var closeModal = function () {
+            var modal = this.parentElement.id;
+            document.getElementById(modal).classList.remove(elements.active);
+            unFreeze();
+        };
+
+        // Freeze scrollbars
+        var freeze = function () {
+            document.getElementsByTagName('html')[0].style.overflow = "hidden"
+            document.getElementsByTagName('body')[0].style.overflowY = "scroll";
+        };
+        
+        var unFreeze = function () {
+            document.getElementsByTagName('html')[0].style.overflow = ""
+            document.getElementsByTagName('body')[0].style.overflowY = "";
+        };
+
+        return {
+            init: function () {
+                events();
+            }
+        }
+    })();
+
     document.addEventListener("DOMContentLoaded", function(event) {
         searchEngine.init();
         rgbSlider.init();
+        modal.init();
     });
 
     var UIcontroller = (function() {
 
         var elm = {
             container: 'results',
+            modalContainer: 'modalContainer',
             card: 'hb-card',
+            modalCard: 'hb-modal-card',
             cardEach: 'hb-each-card',
             noResults: 'hb-no-results',
         };
@@ -444,6 +532,15 @@ var colorNamesJson = [];
                 var templateScript = Handlebars.compile(tpl);
 
                 document.getElementById(elm.container).innerHTML = templateScript(context);
+                modal.init();
+                searchEngine.cardEvents();
+            },
+            showModal: function(context) {
+                var tpl = document.getElementById(elm.modalCard).innerHTML;
+                var templateScript = Handlebars.compile(tpl);
+
+                document.getElementById(elm.modalContainer).innerHTML = templateScript(context);
+                modal.init();
                 searchEngine.cardEvents();
             },
             showError: function(context) {
