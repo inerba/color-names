@@ -17,6 +17,19 @@ var colorNamesJson = [];
 
 (function () {
 
+    // if ('serviceWorker' in navigator) {
+    //     window.addEventListener('load', function () {
+    //         navigator.serviceWorker.register('./sw.js', {scope: '/'})
+    //         .then(function (registration) {
+    //             // Registration was successful
+    //             console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    //         }, function (err) {
+    //             // registration failed :(
+    //             console.log('ServiceWorker registration failed: ', err);
+    //         });
+    //     });
+    // }
+
     var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
     // Elementi importanti dell'interfaccia
@@ -25,6 +38,24 @@ var colorNamesJson = [];
             title: '.main-title',
             searchInput: '.js-searchInput',
             reset: '.delete.overinput'
+        };
+    }();
+
+    var hashNav = function () {
+        var page = window.location.hash;
+
+        var isHexColor = function isHexColor(hex) {
+            return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)
+            );
+        };
+
+        return {
+            init: function init() {
+
+                if (page !== "") {
+                    searchEngine.hex(page);
+                }
+            }
         };
     }();
 
@@ -380,7 +411,7 @@ var colorNamesJson = [];
         };
 
         var searchByString = function searchByString(query) {
-            var colorSearch = new Fuse(namedColors.colorNameList, {
+            var colorSearch = new Fuse(colorNamesJson, {
                 shouldSort: true,
                 includeScore: true,
                 threshold: 0.3,
@@ -494,6 +525,7 @@ var colorNamesJson = [];
 
     document.addEventListener("DOMContentLoaded", function (event) {
         searchEngine.init();
+        hashNav.init();
         rgbSlider.init();
         modal.init();
     });
@@ -536,8 +568,8 @@ var colorNamesJson = [];
             showCards: function showCards(context) {
                 var tpl = document.getElementById(elm.cardEach).innerHTML;
                 var templateScript = Handlebars.compile(tpl);
-
                 document.getElementById(elm.container).innerHTML = templateScript(context);
+                modal.init();
                 searchEngine.cardEvents();
             }
         };
