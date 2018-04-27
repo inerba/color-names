@@ -37,25 +37,8 @@ var colorNamesJson = [];
         return {
             title: '.main-title',
             searchInput: '.js-searchInput',
-            reset: '.delete.overinput'
-        };
-    }();
-
-    var hashNav = function () {
-        var page = window.location.hash;
-
-        var isHexColor = function isHexColor(hex) {
-            return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)
-            );
-        };
-
-        return {
-            init: function init() {
-
-                if (page !== "") {
-                    searchEngine.hex(page);
-                }
-            }
+            reset: '.delete.overinput',
+            container_id: 'results'
         };
     }();
 
@@ -66,11 +49,9 @@ var colorNamesJson = [];
             sliders = document.getElementById('rgbSliders').querySelectorAll('.range-slider'),
             searchInput = document.querySelector(GUI.searchInput);
 
-        var events = function events() {
-
-            sliders.forEach(function (slider, index) {
-
-                // Inizializzo lo slider
+        var initSlider = function initSlider() {
+            // Inizializzo gli slider
+            sliders.forEach(function (slider) {
                 noUiSlider.create(slider, {
                     start: [0],
                     step: 1,
@@ -83,6 +64,12 @@ var colorNamesJson = [];
                         decimals: 0
                     })
                 });
+            });
+        };
+
+        var events = function events() {
+
+            sliders.forEach(function (slider, index) {
 
                 // Mentre muovo lo slider
                 slider.noUiSlider.on('update', function (val) {
@@ -92,15 +79,17 @@ var colorNamesJson = [];
 
                     if (val[0] > 0) {
                         slider.classList.add(active_class);
+                        setInputField();
                     }
 
-                    setInputField();
                     bgSlider(slider.id);
                 });
 
                 // Quando ho finito di muovere
                 slider.noUiSlider.on('set', function (val) {
+                    var hex = getHex();
                     slider.classList.remove(active_class);
+                    hashNav.add(hex);
                     search();
                 });
             });
@@ -171,6 +160,32 @@ var colorNamesJson = [];
             searchEngine.hex(hex);
         };
 
+        var _reset = function _reset() {
+            var inputS = document.querySelector(GUI.searchInput);
+
+            // Riporta il colore allo status iniziale
+            RGB = [0, 0, 0];
+
+            // Riporta gli sliders su 0
+            sliders.forEach(function (slider, index) {
+                slider.noUiSlider.off();
+                slider.noUiSlider.reset();
+            });
+
+            // Svuota il campo di ricerca
+            inputS.value = '';
+            inputS.style.backgroundColor = '';
+            inputS.style.color = '';
+            inputS.focus();
+
+            // Elimina le card
+            document.getElementById(GUI.container_id).innerHTML = '';
+            document.querySelector(GUI.title).style.color = '';
+
+            // ricrea gli eventi
+            events();
+        };
+
         // outils
         var getHex = function getHex() {
 
@@ -190,19 +205,78 @@ var colorNamesJson = [];
 
         return {
             init: function init() {
+                initSlider();
                 events();
             },
             set: function set(hex) {
                 var rgb = tinycolor(hex).toRgb();
                 setSliders(rgb.r, rgb.g, rgb.b);
+            },
+            reset: function reset() {
+                _reset();
+            }
+        };
+    }();
+
+    var hashNav = function () {
+        var page = window.location.hash;
+        var hashHistory;
+        var historyLength;
+
+        var detectBackOrForward = function detectBackOrForward(onBack, onForward) {
+            hashHistory = [window.location.hash];
+            historyLength = window.history.length;
+
+            return function () {
+                var hash = window.location.hash,
+                    length = window.history.length;
+                if (hashHistory.length && historyLength == length) {
+                    if (hashHistory[hashHistory.length - 2] == hash) {
+                        hashHistory = hashHistory.slice(0, -1);
+                        onBack();
+                    } else {
+                        hashHistory.push(hash);
+                        onForward();
+                    }
+                } else {
+                    hashHistory.push(hash);
+                    historyLength = length;
+                }
+            };
+        };
+
+        var events = function events() {
+            window.addEventListener("hashchange", detectBackOrForward(function () {
+                jump(hashHistory[hashHistory.length - 1]);
+            }, function () {
+                jump(hashHistory[hashHistory.length - 1]);
+            }));
+        };
+
+        var jump = function jump(page) {
+            rgbSlider.set(page);
+        };
+
+        var isHexColor = function isHexColor(hex) {
+            return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)
+            );
+        };
+
+        return {
+            init: function init() {
+                if (page !== "") {
+                    jump(page);
+                }
+                events();
+            },
+            add: function add(hash) {
+                document.location.hash = hash;
             }
         };
     }();
 
     // Color names
     var colorNames = function () {
-
-        //var colornamesFile = './assets/vendor/color-name-list/colornames.json';
 
         var loadJSON = function loadJSON(callback) {
             console.log('Load items from file');
@@ -310,8 +384,7 @@ var colorNamesJson = [];
 
             // Clean input field
             document.querySelector(GUI.reset).addEventListener('click', function () {
-                document.querySelector(GUI.searchInput).value = '';
-                document.querySelector(GUI.searchInput).focus();
+                rgbSlider.reset();
             });
         };
 
@@ -525,10 +598,45 @@ var colorNamesJson = [];
 
     document.addEventListener("DOMContentLoaded", function (event) {
         searchEngine.init();
-        hashNav.init();
         rgbSlider.init();
+        hashNav.init();
         modal.init();
     });
+
+    // var hashHistory;
+    // var historyLength;
+
+    // var detectBackOrForward = function (onBack, onForward) {
+    //     hashHistory = [window.location.hash];
+    //     historyLength = window.history.length;
+
+    //     return function () {
+    //         var hash = window.location.hash, length = window.history.length;
+    //         if (hashHistory.length && historyLength == length) {
+    //             if (hashHistory[hashHistory.length - 2] == hash) {
+    //                 hashHistory = hashHistory.slice(0, -1);
+    //                 onBack();
+    //             } else {
+    //                 hashHistory.push(hash);
+    //                 onForward();
+    //             }
+    //         } else {
+    //             hashHistory.push(hash);
+    //             historyLength = length;
+    //         }
+    //     }
+    // };
+
+    // window.addEventListener("hashchange", detectBackOrForward(
+    //     function () {
+    //         let hex = hashHistory[hashHistory.length-1];
+    //         rgbSlider.set(hex);
+    //     },
+    //     function () {
+    //         let hex = hashHistory[hashHistory.length-1];
+    //         rgbSlider.set(hex);
+    //     }
+    // ));
 
     var UIcontroller = function () {
 
