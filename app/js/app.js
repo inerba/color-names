@@ -219,8 +219,9 @@ var colorNamesJson = [];
 
     var hashNav = (function () {
         var page = window.location.hash;
-        var hashHistory;
+        var hashHistory = [];
         var historyLength;
+        var colorHistory = [];
 
         var detectBackOrForward = function (onBack, onForward) {
             hashHistory = [window.location.hash];
@@ -246,16 +247,32 @@ var colorNamesJson = [];
         var events = function() {
             window.addEventListener("hashchange", detectBackOrForward(
                 function () {
-                    jump(hashHistory[hashHistory.length-1]);
+                    let hash = hashHistory[hashHistory.length-1];
+                    if(hash != ""){
+                        jump(hash);
+                    }
                 },
                 function () {
-                    jump(hashHistory[hashHistory.length-1]);
+                    let hash = hashHistory[hashHistory.length-1];
+                    if(hash != ""){
+                        jump(hash);
+                    }
                 }
             ));
+            window.addEventListener("hashchange", function(){
+                
+                colorHistory.push(window.location.hash);
+                colorHistory = colorHistory.filter( onlyUnique );
+  
+            });
         };
 
         var jump = function(page) {
             rgbSlider.set(page);
+        };
+
+        var onlyUnique = function(value, index, self) { 
+            return self.indexOf(value) === index;
         };
 
         var isHexColor = function(hex) {
@@ -271,9 +288,44 @@ var colorNamesJson = [];
             },
             add: function(hash) {
                 document.location.hash = hash;
+            },
+            set: function() {
+                colorHistory.push(window.location.hash);
+                colorHistory = colorHistory.filter( onlyUnique );
+            },
+            get: function() {
+                return colorHistory;
             }
         }
     })();
+
+    var collection = (function(Color){
+        var events = function() {
+            hashNav.set();
+
+            document.querySelector(GUI.title).addEventListener('click', function () {
+
+                //console.log(hashNav.get()); 
+                let colors = hashNav.get();
+                let colArr = [];
+                for (var i = 0; i < colors.length; i++) {
+                    colArr[i] = searchEngine.get(colors[i]);
+                }
+                
+                if (colArr.length > 0) {
+                    UIcontroller.showCards(colArr);
+                } else {
+                    UIcontroller.showError({ message: 'Sorry, no results were found.' });
+                }
+
+            });
+        };
+        return {
+            init: function() {
+                events();
+            }
+        }
+    })(searchEngine);
 
     // Color names
     var colorNames = (function () {
@@ -539,6 +591,11 @@ var colorNamesJson = [];
             hex: function (hex) {
                 searchByHex(hex);
             },
+            get: function (hex) {
+                let nearest = nearestColor.from(hexArr);
+                let match = nearest(hex);
+                return match;
+            },
         }
 
     })(rgbSlider);
@@ -618,6 +675,7 @@ var colorNamesJson = [];
         searchEngine.init();
         rgbSlider.init();
         hashNav.init();
+        collection.init();
         modal.init();
     });
 
