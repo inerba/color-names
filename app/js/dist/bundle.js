@@ -297,34 +297,59 @@ var colorNamesJson = [];
             }
         };
     }();
-
-    var collection = function (Color) {
-        var events = function events() {
-            hashNav.set();
-
-            document.querySelector(GUI.title).addEventListener('click', function () {
-
-                //console.log(hashNav.get()); 
-                var colors = hashNav.get();
-                var colArr = [];
-                for (var i = 0; i < colors.length; i++) {
-                    colArr[i] = searchEngine.get(colors[i]);
+    /*
+        var collection = (function(Color){
+    
+            var colors = [];
+    
+            var events = function() {
+    
+                document.querySelector(GUI.title).addEventListener('click', function () {
+    
+                    let colArr = [];
+                    for (var i = 0; i < colors.length; i++) {
+                        colArr[i] = searchEngine.get(colors[i]);
+                    }
+                    
+                    if (colArr.length > 0) {
+                        UIcontroller.showCards(colArr);
+                    } else {
+                        UIcontroller.showError({ message: 'Sorry, no results were found.' });
+                    }
+    
+                });
+    
+                let collect = document.querySelectorAll('.collect');
+    
+                collect.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        colors.push(this.attributes[1].value);
+                        colors = colors.filter( onlyUnique );
+    
+                        this.classList.add('ion-ios-checkmark');             
+                        this.classList.remove('ion-ios-circle-outline');
+                    });
+                });
+    
+                colors.forEach(color => {
+                    let cltd = document.querySelector(`[data-hex="${color}"]`);
+                    cltd.classList.add('ion-ios-checkmark');             
+                    cltd.classList.remove('ion-ios-circle-outline');             
+                });
+    
+    
+            };
+    
+            var onlyUnique = function(value, index, self) { 
+                return self.indexOf(value) === index;
+            };
+            return {
+                init: function() {
+                    events();
                 }
-
-                if (colArr.length > 0) {
-                    UIcontroller.showCards(colArr);
-                } else {
-                    UIcontroller.showError({ message: 'Sorry, no results were found.' });
-                }
-            });
-        };
-        return {
-            init: function init() {
-                events();
             }
-        };
-    }(searchEngine);
-
+        })(searchEngine);
+    */
     // Color names
     var colorNames = function () {
 
@@ -439,49 +464,53 @@ var colorNamesJson = [];
         };
 
         var _cardEvents = function _cardEvents() {
-            var jsMatched = document.querySelectorAll('.js-matched');
-            for (var i = 0; i < jsMatched.length; i++) {
-                jsMatched[i].addEventListener('click', function () {
-
-                    searchByHex(this.innerHTML);
-                    rgbSlider.set(this.innerHTML);
-                });
-            }
 
             // Modal
-            var colBox = document.querySelectorAll('.js-col-hover');
-            colBox.forEach(function (box, index) {
-                box.addEventListener('click', function () {
-                    var rgbCol = box.style.backgroundColor,
-                        hexCol = '#' + tinycolor(rgbCol).toHex(),
-                        nearest = nearestColor.from(hexArr),
-                        match = nearest(hexCol);
-
-                    var newColor = new Color(match.name, hexCol, match.value);
-                    if (match.distance === 0) {
-                        newColor.title = match.name;
-                    } else {
-                        newColor.different = true;
-                    }
-                    UIcontroller.showModal(newColor);
-                });
+            var cont = document.getElementById('results');
+            //let colBox = document.querySelectorAll('.js-col-hover');
+            var colBox = cont.getElementsByClassName('js-col-hover');
+            Object.keys(colBox).forEach(function (index) {
+                var box = colBox[index];
+                box.addEventListener('click', handleCardEvents);
+                box.elm = box;
             });
-
-            // Tippy
-            // for (let i = 0; i < colBox.length; i++) {
-
-            //     tippy(colBox[i], {
-            //         dynamicTitle: true,
-            //         arrow: true,
-            //         interactive: true,
-            //         arrowType: 'sharp'
-            //     });
-            //     colBox[i].title = tinycolor(colBox[i].style.backgroundColor).toHexString();
-
-            // }
         };
 
-        var openModal = function openModal() {};
+        var handleCardEvents = function handleCardEvents(box) {
+
+            var rgbCol = box.target.elm.style.backgroundColor,
+                hexCol = '#' + tinycolor(rgbCol).toHex(),
+                nearest = nearestColor.from(hexArr),
+                match = nearest(hexCol);
+
+            var newColor = new Color(match.name, hexCol, match.value);
+            if (match.distance === 0) {
+                newColor.title = match.name;
+            } else {
+                newColor.different = true;
+            }
+
+            UIcontroller.showModal(newColor);
+        };
+
+        var _clickHex = function _clickHex() {
+            var jsMatched = document.querySelectorAll('.js-matched');
+            for (var i = 0; i < jsMatched.length; i++) {
+                jsMatched[i].addEventListener('click', handleClickHex);
+            }
+        };
+
+        var destroyClickHex = function destroyClickHex() {
+            var jsMatched = document.querySelectorAll('.js-matched');
+            for (var i = 0; i < jsMatched.length; i++) {
+                jsMatched[i].removeEventListener('click', handleClickHex);
+            }
+        };
+
+        var handleClickHex = function handleClickHex() {
+            rgbSlider.set(this.innerHTML);
+            modal.closeAll();
+        };
 
         var isHexColor = function isHexColor(hex) {
             return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)
@@ -509,7 +538,7 @@ var colorNamesJson = [];
                 document.querySelector(GUI.searchInput).style.backgroundColor = '';
                 document.querySelector(GUI.searchInput).style.color = '#000';
             }
-            //rgbSlider.hide();
+            //rgbSlider.hide();           
         };
 
         var searchByHex = function searchByHex(hex) {
@@ -529,7 +558,6 @@ var colorNamesJson = [];
                 }
 
                 UIcontroller.showResult(newColor);
-                document.querySelector(GUI.searchInput).value = hex;
             }
         };
 
@@ -569,6 +597,9 @@ var colorNamesJson = [];
             cardEvents: function cardEvents() {
                 _cardEvents();
             },
+            clickHex: function clickHex() {
+                _clickHex();
+            },
             hex: function hex(_hex) {
                 searchByHex(_hex);
             },
@@ -602,18 +633,18 @@ var colorNamesJson = [];
             onClickEach(elements.button, openModal);
 
             onClickEach(elements.close, closeModal);
-            onClickEach(elements.buttonClose, closeAll);
+            onClickEach(elements.buttonClose, _closeAll);
             onClickEach(elements.background, closeModal);
 
             // Close all modals if ESC key is pressed
             document.addEventListener('keyup', function (key) {
                 if (key.keyCode == 27) {
-                    closeAll();
+                    _closeAll();
                 }
             });
         };
 
-        var closeAll = function closeAll() {
+        var _closeAll = function _closeAll() {
             var openModal = document.querySelectorAll('.' + elements.active);
             openModal.forEach(function (modal) {
                 modal.classList.remove(elements.active);
@@ -621,7 +652,7 @@ var colorNamesJson = [];
             unFreeze();
         };
 
-        var openModal = function openModal() {
+        var openModal = function openModal(e) {
             var modal = this.getAttribute(elements.target);
             freeze();
             document.getElementById(modal).classList.add(elements.active);
@@ -647,6 +678,9 @@ var colorNamesJson = [];
         return {
             init: function init() {
                 events();
+            },
+            closeAll: function closeAll() {
+                _closeAll();
             }
         };
     }();
@@ -655,7 +689,6 @@ var colorNamesJson = [];
         searchEngine.init();
         rgbSlider.init();
         hashNav.init();
-        collection.init();
         modal.init();
     });
 
@@ -713,14 +746,14 @@ var colorNamesJson = [];
                 document.getElementById(elm.container).innerHTML = templateScript(context);
                 modal.init();
                 searchEngine.cardEvents();
+                searchEngine.clickHex();
             },
-            showModal: function showModal(context) {
+            showModal: function showModal(context, e) {
                 var tpl = document.getElementById(elm.modalCard).innerHTML;
                 var templateScript = Handlebars.compile(tpl);
 
                 document.getElementById(elm.modalContainer).innerHTML = templateScript(context);
-                modal.init();
-                searchEngine.cardEvents();
+                searchEngine.clickHex();
             },
             showError: function showError(context) {
                 var tpl = document.getElementById(elm.noResults).innerHTML;

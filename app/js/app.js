@@ -81,7 +81,7 @@ var colorNamesJson = [];
 
                     bgSlider(slider.id);
                 });
-
+                
                 // Quando ho finito di muovere
                 slider.noUiSlider.on('set', function(val) {
                     let hex = getHex();
@@ -257,7 +257,8 @@ var colorNamesJson = [];
                     if(hash != ""){
                         jump(hash);
                     }
-                }
+                },
+                
             ));
             window.addEventListener("hashchange", function(){
                 
@@ -298,15 +299,15 @@ var colorNamesJson = [];
             }
         }
     })();
-
+/*
     var collection = (function(Color){
+
+        var colors = [];
+
         var events = function() {
-            hashNav.set();
 
             document.querySelector(GUI.title).addEventListener('click', function () {
 
-                //console.log(hashNav.get()); 
-                let colors = hashNav.get();
                 let colArr = [];
                 for (var i = 0; i < colors.length; i++) {
                     colArr[i] = searchEngine.get(colors[i]);
@@ -319,6 +320,30 @@ var colorNamesJson = [];
                 }
 
             });
+
+            let collect = document.querySelectorAll('.collect');
+
+            collect.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    colors.push(this.attributes[1].value);
+                    colors = colors.filter( onlyUnique );
+
+                    this.classList.add('ion-ios-checkmark');             
+                    this.classList.remove('ion-ios-circle-outline');
+                });
+            });
+
+            colors.forEach(color => {
+                let cltd = document.querySelector(`[data-hex="${color}"]`);
+                cltd.classList.add('ion-ios-checkmark');             
+                cltd.classList.remove('ion-ios-circle-outline');             
+            });
+
+
+        };
+
+        var onlyUnique = function(value, index, self) { 
+            return self.indexOf(value) === index;
         };
         return {
             init: function() {
@@ -326,7 +351,7 @@ var colorNamesJson = [];
             }
         }
     })(searchEngine);
-
+*/
     // Color names
     var colorNames = (function () {
 
@@ -448,54 +473,57 @@ var colorNamesJson = [];
             document.querySelector(GUI.reset).addEventListener('click',function(){
                 rgbSlider.reset();
             });
-
+            
         };
 
         var cardEvents = function () {
-            let jsMatched = document.querySelectorAll('.js-matched');
-            for (var i = 0; i < jsMatched.length; i++) {
-                jsMatched[i].addEventListener('click', function () {
-
-                    searchByHex(this.innerHTML);
-                    rgbSlider.set(this.innerHTML);
-                });
-            }
 
             // Modal
-            let colBox = document.querySelectorAll('.js-col-hover');
-            colBox.forEach((box, index) => {
-                box.addEventListener('click',function(){
-                    let rgbCol = box.style.backgroundColor,
-                        hexCol = '#' + tinycolor(rgbCol).toHex(),
-                        nearest = nearestColor.from(hexArr),
-                        match = nearest(hexCol);
+            let cont = document.getElementById('results');
+            //let colBox = document.querySelectorAll('.js-col-hover');
+            let colBox = cont.getElementsByClassName('js-col-hover');
+            Object.keys(colBox).forEach(function(index) {
+                let box = colBox[index];
+                box.addEventListener('click', handleCardEvents);
+                box.elm = box;
+            });
 
-                    let newColor = new Color(match.name, hexCol, match.value);
-                    if(match.distance === 0){
-                        newColor.title = match.name;
-                    } else {
-                        newColor.different = true;
-                    }
-                    UIcontroller.showModal(newColor);
-                });
-            });         
-
-            // Tippy
-            // for (let i = 0; i < colBox.length; i++) {
-
-            //     tippy(colBox[i], {
-            //         dynamicTitle: true,
-            //         arrow: true,
-            //         interactive: true,
-            //         arrowType: 'sharp'
-            //     });
-            //     colBox[i].title = tinycolor(colBox[i].style.backgroundColor).toHexString();
-
-            // }
         };
 
-        var openModal = function () {
+        var handleCardEvents = function(box){
             
+            let rgbCol = box.target.elm.style.backgroundColor,
+                hexCol = '#' + tinycolor(rgbCol).toHex(),
+                nearest = nearestColor.from(hexArr),
+                match = nearest(hexCol);
+
+            let newColor = new Color(match.name, hexCol, match.value);
+            if(match.distance === 0){
+                newColor.title = match.name;
+            } else {
+                newColor.different = true;
+            }
+            
+            UIcontroller.showModal(newColor);
+        };
+
+        var clickHex = function() {
+            let jsMatched = document.querySelectorAll('.js-matched');
+            for (var i = 0; i < jsMatched.length; i++) {
+                jsMatched[i].addEventListener('click', handleClickHex );
+            }
+        };
+        
+        var destroyClickHex = function() {
+            let jsMatched = document.querySelectorAll('.js-matched');
+            for (var i = 0; i < jsMatched.length; i++) {
+                jsMatched[i].removeEventListener('click', handleClickHex);
+            }
+        };
+
+        var handleClickHex = function(){
+            rgbSlider.set(this.innerHTML);
+            modal.closeAll();
         };
 
         var isHexColor = function(hex) {
@@ -525,7 +553,7 @@ var colorNamesJson = [];
                 document.querySelector(GUI.searchInput).style.color = '#000';
 
             }
-            //rgbSlider.hide();
+            //rgbSlider.hide();           
         };
 
         var searchByHex = function(hex) {
@@ -545,7 +573,6 @@ var colorNamesJson = [];
                 }
 
                 UIcontroller.showResult(newColor);
-                document.querySelector(GUI.searchInput).value = hex;
             }
         }
 
@@ -587,6 +614,9 @@ var colorNamesJson = [];
             },
             cardEvents: function () {
                 cardEvents();
+            },
+            clickHex: function () {
+                clickHex();
             },
             hex: function (hex) {
                 searchByHex(hex);
@@ -641,7 +671,7 @@ var colorNamesJson = [];
             unFreeze();            
         };
 
-        var openModal = function () {
+        var openModal = function (e) {
             var modal = this.getAttribute(elements.target);
             freeze();
             document.getElementById(modal).classList.add(elements.active);
@@ -667,7 +697,10 @@ var colorNamesJson = [];
         return {
             init: function () {
                 events();
-            }
+            },
+            closeAll: function () {
+                closeAll();
+            },
         }
     })();
 
@@ -675,7 +708,6 @@ var colorNamesJson = [];
         searchEngine.init();
         rgbSlider.init();
         hashNav.init();
-        collection.init();
         modal.init();
     });
 
@@ -733,14 +765,14 @@ var colorNamesJson = [];
                 document.getElementById(elm.container).innerHTML = templateScript(context);
                 modal.init();
                 searchEngine.cardEvents();
+                searchEngine.clickHex();
             },
-            showModal: function(context) {
+            showModal: function(context, e) {
                 var tpl = document.getElementById(elm.modalCard).innerHTML;
                 var templateScript = Handlebars.compile(tpl);
 
                 document.getElementById(elm.modalContainer).innerHTML = templateScript(context);
-                modal.init();
-                searchEngine.cardEvents();
+                searchEngine.clickHex();
             },
             showError: function(context) {
                 var tpl = document.getElementById(elm.noResults).innerHTML;
